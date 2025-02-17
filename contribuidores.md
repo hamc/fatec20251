@@ -1,1 +1,2 @@
 Heitor Cardozo
+Eduardo Canos

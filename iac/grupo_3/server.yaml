@@ -1,0 +1,102 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Configuração de Custo Mínimo EC2 + RDS (us-east-1)
+
+Parameters:
+  KeyName:
+    Description: Nome da chave SSH existente
+    Type: AWS::EC2::KeyPair::KeyName
+    Default: fatec-5sem
+
+  SSHLocation:
+    Description: Seu IP para acesso SSH (formato CIDR)
+    Type: String
+    Default: 0.0.0.0/0
+    AllowedPattern: ^(\d{1,3}\.){3}\d{1,3}/\d{1,2}$
+
+  DBUser:
+    Description: Usuário do banco de dados
+    Type: String
+    Default: admin
+
+  DBPassword:
+    Description: Senha do banco (mínimo 8 caracteres)
+    Type: String
+    NoEcho: true
+    MinLength: 8
+
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: ID da VPC existente
+
+  SubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: Subnet pública
+
+Resources:
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref LatestAmazonLinuxAMI
+      InstanceType: t4g.micro  # Instância ARM mais barata que t2/t3
+      KeyName: !Ref KeyName
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          SubnetId: !Ref SubnetId
+          GroupSet:
+            - !Ref EC2SecurityGroup
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          sudo yum update -y
+          sudo amazon-linux-extras install postgresql15 -y  # Cliente PostgreSQL
+
+  EC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Acesso SSH mínimo
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref SSHLocation
+
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Acesso PostgreSQL apenas da EC2
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: !GetAtt EC2SecurityGroup.GroupId
+
+  PostgreSQLRDS:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine: postgres
+      EngineVersion: 15  # Versão estável com melhor performance/custo
+      DBInstanceClass: db.t4g.micro  # Instância ARM mais barata
+      AllocatedStorage: 20  # Mínimo permitido
+      StorageType: gp3  # Mais barato que gp2
+      MasterUsername: !Ref DBUser
+      MasterUserPassword: !Ref DBPassword
+      PubliclyAccessible: false
+      MultiAZ: false
+      StorageEncrypted: true
+      BackupRetentionPeriod: 1  # Mínimo de backups
+      PerformanceInsightsEnabled: false  # Desativa métricas premium
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      VPCSecurityGroups:
+        - !GetAtt RDSSecurityGroup.GroupId
+
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnet Group para RDS
+      SubnetIds:
+        - !Ref SubnetId  # Usa mesma subnet pública para simplificar
+
+ 

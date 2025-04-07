@@ -37,7 +37,7 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: !Ref LatestAmazonLinuxAMI
-      InstanceType: t4g.micro  # Instância ARM mais barata que t2/t3
+      InstanceType: t2.micro
       KeyName: !Ref KeyName
       NetworkInterfaces:
         - AssociatePublicIpAddress: true

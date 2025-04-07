@@ -5,7 +5,7 @@ Parameters:
   LatestAmazonLinuxAMI:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
     Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-arm64
-    
+
   KeyName:
     Description: Nome da chave SSH existente
     Type: AWS::EC2::KeyPair::KeyName
@@ -39,6 +39,7 @@ Parameters:
 Resources:
   EC2Instance:
     Type: AWS::EC2::Instance
+    DeletionPolicy: Delete
     Properties:
       ImageId: !Ref LatestAmazonLinuxAMI
       InstanceType: t2.micro
@@ -57,6 +58,7 @@ Resources:
 
   EC2SecurityGroup:
     Type: AWS::EC2::SecurityGroup
+    DeletionPolicy: Delete
     Properties:
       GroupDescription: Acesso SSH mínimo
       VpcId: !Ref VpcId
@@ -68,6 +70,7 @@ Resources:
 
   RDSSecurityGroup:
     Type: AWS::EC2::SecurityGroup
+    DeletionPolicy: Delete
     Properties:
       GroupDescription: Acesso PostgreSQL apenas da EC2
       VpcId: !Ref VpcId
@@ -79,6 +82,7 @@ Resources:
 
   PostgreSQLRDS:
     Type: AWS::RDS::DBInstance
+    DeletionPolicy: Delete
     Properties:
       Engine: postgres
       EngineVersion: 15  # Versão estável com melhor performance/custo
@@ -98,6 +102,7 @@ Resources:
 
   DBSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
+    DeletionPolicy: Delete
     Properties:
       DBSubnetGroupDescription: Subnet Group para RDS
       SubnetIds:

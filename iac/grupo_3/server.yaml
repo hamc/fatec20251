@@ -1,35 +1,50 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Configuração Mínima EC2 + RDS
+Description: Configuração de Custo Mínimo EC2 + RDS (us-east-1)
 
 Parameters:
+  LatestAmazonLinuxAMI:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-arm64
+
   KeyName:
+    Description: Nome da chave SSH existente
     Type: AWS::EC2::KeyPair::KeyName
     Default: fatec-5sem
 
   SSHLocation:
+    Description: Seu IP para acesso SSH (formato CIDR)
     Type: String
     Default: 0.0.0.0/0
+    AllowedPattern: ^(\d{1,3}\.){3}\d{1,3}/\d{1,2}$
+
+  DBUser:
+    Description: Usuário do banco de dados
+    Type: String
+    Default: admin
+
+  DBPassword:
+    Description: Senha do banco (mínimo 8 caracteres)
+    Type: String
+    NoEcho: true
+    MinLength: 8
+
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: ID da VPC existente
+
+  PublicSubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: Subnet pública para a EC2
+
+  PrivateSubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Lista de subnets privadas para o RDS (mínimo 2 em AZs diferentes)
 
 Resources:
-  EC2Instance:
-    Type: AWS::EC2::Instance
-    Properties:
-      ImageId: !Ref LatestAmazonLinuxAMI
-      InstanceType: t2.micro
-      KeyName: !Ref KeyName
-      NetworkInterfaces:
-        - AssociatePublicIpAddress: true
-          DeviceIndex: 0
-          SubnetId: !Ref SubnetId
-          GroupSet: [!Ref EC2SecurityGroup]
-      UserData:
-        Fn::Base64: |
-          #!/bin/bash
-          yum install postgresql15 -y
-
   EC2SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
+      GroupDescription: Acesso SSH restrito
       VpcId: !Ref VpcId
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -40,40 +55,56 @@ Resources:
   RDSSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      VpcId: !Ref VpcId 
+      GroupDescription: Acesso PostgreSQL da EC2
+      VpcId: !Ref VpcId
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 5432
           ToPort: 5432
           SourceSecurityGroupId: !GetAtt EC2SecurityGroup.GroupId
 
-  PostgreSQLRDS:
-    Type: AWS::RDS::DBInstance
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    DeletionPolicy: Delete
     Properties:
-      Engine: postgres
-      DBInstanceClass: db.t2.micro
-      MasterUsername: admin
-      MasterUserPassword: SenhaTemp123
-      DBSubnetGroupName: !Ref DBSubnetGroup
-      VPCSecurityGroups: [!GetAtt RDSSecurityGroup.GroupId]
+      ImageId: !Ref LatestAmazonLinuxAMI
+      InstanceType: t2.micro
+      KeyName: !Ref KeyName
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          SubnetId: !Ref PublicSubnetId
+          GroupSet:
+            - !Ref EC2SecurityGroup
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          sudo yum update -y
+          sudo amazon-linux-extras install postgresql15 -y
 
   DBSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
+    DeletionPolicy: Delete
     Properties:
-      SubnetIds: [!Ref SubnetId, !Ref SubnetId]
+      DBSubnetGroupDescription: Subnet Group para RDS
+      SubnetIds: !Ref PrivateSubnetIds
 
-  LatestAmazonLinuxAMI:
-    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
-    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-arm64
-
-  VpcId:
-    Type: AWS::EC2::VPC::Id
-
-  SubnetId:
-    Type: AWS::EC2::Subnet::Id
-
-Outputs:
-  EC2IP:
-    Value: !GetAtt EC2Instance.PublicIp
-  RDSAddress:
-    Value: !GetAtt PostgreSQLRDS.Endpoint.Address
+  PostgreSQLRDS:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Delete
+    Properties:
+      Engine: postgres
+      EngineVersion: 15
+      DBInstanceClass: db.t4g.micro
+      AllocatedStorage: 20
+      StorageType: gp3
+      MasterUsername: !Ref DBUser
+      MasterUserPassword: !Ref DBPassword
+      PubliclyAccessible: false
+      MultiAZ: false
+      StorageEncrypted: true
+      BackupRetentionPeriod: 0
+      PerformanceInsightsEnabled: false
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      VPCSecurityGroups:
+        - !GetAtt RDSSecurityGroup.GroupId

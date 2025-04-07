@@ -1,104 +1,51 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Description: Configuração EC2 + RDS com Importação de Recursos Existentes
-
-Parameters:
-  # Parâmetros para recursos EXISTENTES (a serem importados)
-  ExistingVPC:
-    Type: AWS::EC2::VPC::Id
-    Description: ID da VPC existente
-
-  ExistingPublicSubnet:
-    Type: AWS::EC2::Subnet::Id
-    Description: Subnet pública existente para EC2
-
-  ExistingPrivateSubnets:
-    Type: List<AWS::EC2::Subnet::Id>
-    Description: Lista de subnets privadas existentes para RDS
-
-  ExistingKeyPair:
-    Type: AWS::EC2::KeyPair::KeyName
-    Description: Nome da chave SSH existente
-
-  # Parâmetros para configurações dinâmicas
-  SSHLocation:
-    Description: IP para acesso SSH (formato CIDR)
-    Type: String
-    Default: 0.0.0.0/0
-    AllowedPattern: ^(\d{1,3}\.){3}\d{1,3}/\d{1,2}$
-
-  DBUser:
-    Description: Usuário do banco de dados
-    Type: String
-    Default: admin
-
-  DBPassword:
-    Description: Senha do banco (mínimo 8 caracteres)
-    Type: String
-    NoEcho: true
-    MinLength: 8
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "CloudFormation Template para criar uma instância EC2 Ubuntu com Apache instalado."
 
 Resources:
-  # Security Groups (novos recursos)
-  EC2SecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    DeletionPolicy: Delete
-    Properties:
-      GroupDescription: Acesso SSH restrito
-      VpcId: !Ref ExistingVPC
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-          CidrIp: !Ref SSHLocation
-
-  RDSSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    DeletionPolicy: Delete
-    Properties:
-      GroupDescription: Acesso PostgreSQL da EC2
-      VpcId: !Ref ExistingVPC
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 5432
-          ToPort: 5432
-          SourceSecurityGroupId: !GetAtt EC2SecurityGroup.GroupId
-
-  # EC2 Instance (novo recurso)
   EC2Instance:
-    Type: AWS::EC2::Instance
-    DeletionPolicy: Delete
+    Type: "AWS::EC2::Instance"
     Properties:
-      ImageId: !Ref ExistingAmazonLinuxAMI
-      InstanceType: t2.micro
-      KeyName: !Ref ExistingKeyPair
-      SubnetId: !Ref ExistingPublicSubnet
-      SecurityGroupIds:
-        - !Ref EC2SecurityGroup
+      InstanceType: "t2.micro"
+      KeyName: "fatec-5sem"
+      ImageId: "ami-0fc5d935ebf8bc3bc" # AMI Ubuntu mais recente na região (verifique a ID correta para sua região)
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          SubnetId: "subnet-088043a30f2198697"
+          GroupSet:
+            - !Ref InstanceSecurityGroup
       UserData:
         Fn::Base64: |
           #!/bin/bash
-          sudo yum update -y
-          sudo amazon-linux-extras install postgresql15 -y
+          sudo apt update -y
+          sudo apt install apache2 -y
+          sudo systemctl start apache2
+          sudo systemctl enable apache2
+          sudo ufw disable
+      Tags:
+        - Key: "Name"
+          Value: "Ubuntu-WebServer"
 
-  # RDS (novo recurso)
-  PostgreSQLRDS:
-    Type: AWS::RDS::DBInstance
-    DeletionPolicy: Delete
+  InstanceSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
     Properties:
-      Engine: postgres
-      EngineVersion: 15
-      DBInstanceClass: db.t4g.micro
-      AllocatedStorage: 20
-      MasterUsername: !Ref DBUser
-      MasterUserPassword: !Ref DBPassword
-      DBSubnetGroupName: !Ref RDSSubnetGroup
-      VPCSecurityGroups:
-        - !GetAtt RDSSecurityGroup.GroupId
+      GroupDescription: "Habilita acesso HTTP, HTTPS e SSH"
+      VpcId: "vpc-00db397b"
+      SecurityGroupIngress:
+        - IpProtocol: "tcp"
+          FromPort: 22
+          ToPort: 22
+          CidrIp: "0.0.0.0/0"
+        - IpProtocol: "tcp"
+          FromPort: 80
+          ToPort: 80
+          CidrIp: "0.0.0.0/0"
+        - IpProtocol: "tcp"
+          FromPort: 443
+          ToPort: 443
+          CidrIp: "0.0.0.0/0"
 
-  # DB Subnet Group (usa subnets existentes)
-  RDSSubnetGroup:
-    Type: AWS::RDS::DBSubnetGroup
-    DeletionPolicy: Delete
-    Properties:
-      DBSubnetGroupDescription: Subnet Group para RDS
-      SubnetIds: !Ref ExistingPrivateSubnets
+Outputs:
+  InstancePublicIP:
+    Description: "Public IP address of the EC2 instance"
+    Value: !GetAtt EC2Instance.PublicIp

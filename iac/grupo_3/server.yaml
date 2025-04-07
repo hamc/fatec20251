@@ -43,6 +43,7 @@ Parameters:
 Resources:
   EC2SecurityGroup:
     Type: AWS::EC2::SecurityGroup
+    DeletionPolicy: Delete
     Properties:
       GroupDescription: Acesso SSH restrito
       VpcId: !Ref VpcId
@@ -54,6 +55,7 @@ Resources:
 
   RDSSecurityGroup:
     Type: AWS::EC2::SecurityGroup
+    DeletionPolicy: Delete
     Properties:
       GroupDescription: Acesso PostgreSQL da EC2
       VpcId: !Ref VpcId

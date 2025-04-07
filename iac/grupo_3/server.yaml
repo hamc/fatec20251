@@ -86,7 +86,7 @@ Resources:
       PubliclyAccessible: false
       MultiAZ: false
       StorageEncrypted: true
-      BackupRetentionPeriod: 1  # Mínimo de backups
+      BackupRetentionPeriod: 0  # Mínimo de backups
       PerformanceInsightsEnabled: false  # Desativa métricas premium
       DBSubnetGroupName: !Ref DBSubnetGroup
       VPCSecurityGroups:

@@ -1,0 +1,68 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "CloudFormation Template para criar uma instância EC2 para autenticação e uma tabela DynamoDB para armazenar usuários e sessões."
+
+Parameters:
+  DynamoDBTableName:
+    Type: String
+    Default: "UsuariosAutenticacao"
+    Description: "Nome da tabela DynamoDB para armazenar usuários e sessões."
+
+Resources:
+  EC2Instance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      InstanceType: "t2.micro"
+      KeyName: "fatec-5sem"
+      ImageId: "ami-0fc5d935ebf8bc3bc"
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          SubnetId: "subnet-088043a30f2198697"
+          GroupSet:
+            - !Ref InstanceSecurityGroup
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          echo "AWS_REGION=us-east-1" >> /etc/environment
+      Tags:
+        - Key: "Name"
+          Value: "Auth-Service-EC2"
+
+  InstanceSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "Habilita acesso HTTP, HTTPS e SSH"
+      VpcId: "vpc-00db397b"
+      SecurityGroupIngress:
+        - IpProtocol: "tcp"
+          FromPort: 22
+          ToPort: 22
+          CidrIp: "0.0.0.0/0"
+        - IpProtocol: "tcp"
+          FromPort: 80
+          ToPort: 80
+          CidrIp: "0.0.0.0/0"
+        - IpProtocol: "tcp"
+          FromPort: 443
+          ToPort: 443
+          CidrIp: "0.0.0.0/0"
+
+  DynamoDBTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: DynamoDBTableName
+      AttributeDefinitions:
+        - AttributeName: "UserID"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "UserID"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+      Tags:
+        - Key: "Name"
+          Value: "Auth-Users-Table"
+
+Outputs:
+  InstancePublicIP:
+    Description: "Public IP address of the EC2 instance"
+    Value: !GetAtt EC2Instance.PublicIp

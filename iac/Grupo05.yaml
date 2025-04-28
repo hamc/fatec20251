@@ -1,0 +1,146 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "CloudFormation Template para criar uma instância EC2 Ubuntu com Apache instalado e SNS para notificações."
+
+Resources:
+  EC2Instance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      InstanceType: "t2.micro"
+      KeyName: "fatec-5sem"
+      ImageId: "ami-0fc5d935ebf8bc3bc" # AMI Ubuntu mais recente na região (verifique a ID correta para sua região)
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          SubnetId: "subnet-088043a30f2198697"
+          GroupSet:
+            - !Ref InstanceSecurityGroup
+      IamInstanceProfile: !Ref EC2InstanceProfile
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          sudo apt update -y
+          sudo apt install apache2 -y
+          sudo apt install python3-pip -y
+          sudo pip3 install boto3
+          sudo systemctl start apache2
+          sudo systemctl enable apache2
+          sudo ufw disable
+          
+          # Configurando script para envio de notificações SNS
+          cat > /home/ubuntu/send_sns.py << 'EOF'
+          #!/usr/bin/python3
+          import boto3
+          import argparse
+
+          def send_notification(topic_arn, subject, message):
+              sns = boto3.client('sns', region_name='us-east-1')
+              response = sns.publish(
+                  TopicArn=topic_arn,
+                  Subject=subject,
+                  Message=message
+              )
+              print(f"Mensagem enviada! ID: {response['MessageId']}")
+              return response
+
+          if __name__ == "__main__":
+              parser = argparse.ArgumentParser(description='Enviar notificação via SNS')
+              parser.add_argument('--subject', required=True, help='Assunto da notificação')
+              parser.add_argument('--message', required=True, help='Conteúdo da mensagem')
+              args = parser.parse_args()
+              
+              # Lendo o ARN do tópico SNS do arquivo
+              with open('/home/ubuntu/sns_topic_arn.txt', 'r') as f:
+                  topic_arn = f.read().strip()
+              
+              send_notification(topic_arn, args.subject, args.message)
+          EOF
+          
+          # Tornando o script executável
+          chmod +x /home/ubuntu/send_sns.py
+          
+          # Salvando o ARN do tópico SNS em um arquivo
+          echo "${NotificationTopic}" > /home/ubuntu/sns_topic_arn.txt
+          
+          # Criando arquivo de exemplo para uso
+          cat > /home/ubuntu/README.txt << 'EOF'
+          # Instruções para uso do sistema de notificações SNS
+          
+          Para enviar uma notificação SNS, use o comando:
+          
+          python3 /home/ubuntu/send_sns.py --subject "Seu assunto" --message "Sua mensagem"
+          
+          Exemplo:
+          python3 /home/ubuntu/send_sns.py --subject "Alerta de Sistema" --message "O servidor está com 90% de uso de CPU"
+          
+          Para adicionar inscritos ao tópico SNS, acesse o console da AWS ou use o AWS CLI:
+          aws sns subscribe --topic-arn $(cat /home/ubuntu/sns_topic_arn.txt) --protocol email --notification-endpoint seu-email@example.com
+          EOF
+      Tags:
+        - Key: "Name"
+          Value: "Ubuntu-WebServer"
+
+  InstanceSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "Habilita acesso HTTP, HTTPS e SSH"
+      VpcId: "vpc-00db397b"
+      SecurityGroupIngress:
+        - IpProtocol: "tcp"
+          FromPort: 22
+          ToPort: 22
+          CidrIp: "0.0.0.0/0"
+        - IpProtocol: "tcp"
+          FromPort: 80
+          ToPort: 80
+          CidrIp: "0.0.0.0/0"
+        - IpProtocol: "tcp"
+          FromPort: 443
+          ToPort: 443
+          CidrIp: "0.0.0.0/0"
+
+  # SNS Topic para notificações
+  NotificationTopic:
+    Type: "AWS::SNS::Topic"
+    Properties:
+      TopicName: "Grupo05-Notifications"
+      DisplayName: "Grupo05-Notifications"
+
+  # IAM Role que permite a instância EC2 publicar no SNS
+  EC2Role:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "ec2.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Path: "/"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/AmazonSNSFullAccess"
+
+  # Instance Profile para associar a IAM Role à instância EC2
+  EC2InstanceProfile:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      Path: "/"
+      Roles:
+        - !Ref EC2Role
+
+Outputs:
+  InstancePublicIP:
+    Description: "Public IP address of the EC2 instance"
+    Value: !GetAtt EC2Instance.PublicIp
+  
+  SNSTopicARN:
+    Description: "ARN do tópico SNS para notificações"
+    Value: !Ref NotificationTopic
+  
+  SSHCommand:
+    Description: "Comando para se conectar à instância via SSH"
+    Value: !Sub "ssh -i fatec-5sem.pem ubuntu@${EC2Instance.PublicIp}"
+  
+  NotificationUsage:
+    Description: "Como enviar notificações do servidor"
+    Value: !Sub "ssh -i fatec-5sem.pem ubuntu@${EC2Instance.PublicIp} 'python3 /home/ubuntu/send_sns.py --subject \"Assunto\" --message \"Mensagem\"'"

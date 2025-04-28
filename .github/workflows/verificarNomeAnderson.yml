@@ -1,0 +1,54 @@
+name: Verificar arquivo do aluno
+ 
+on:
+
+  push:
+
+    branches: [ master ]
+
+  pull_request:
+
+    branches: [ master ]
+
+  workflow_dispatch:
+ 
+jobs:
+
+  verificar-arquivo:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout do repositório
+
+      uses: actions/checkout@v4
+
+    - name: Verificar se arquivo existe
+
+      id: check-file
+
+      run: |
+
+        if [ -f "alunos/anderson.md" ]; then
+
+          echo "::notice::Arquivo encontrado: alunos/anderson.md"
+
+          echo "exists=true" >> $GITHUB_OUTPUT
+
+        else
+
+          echo "::error::Arquivo não encontrado: alunos/anderson.md"
+
+          echo "exists=false" >> $GITHUB_OUTPUT
+
+          exit 1
+
+        fi
+
+    - name: Exibir resultado
+
+      if: steps.check-file.outputs.exists == 'true'
+
+      run: echo "✅ Arquivo do aluno encontrado com sucesso!"
+ 

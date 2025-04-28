@@ -1,0 +1,16 @@
+name: Teste Pipeline
+on: [push]
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout do código
+              uses: actions/checkout@v3
+            - name: Executar comando
+              run: 
+                if grep -q "terceira linha" index.html; tjen
+                  echo "teste passou"
+                else
+                  echo "teste falhou"
+                  exit 1
+                fi

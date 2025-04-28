@@ -1,0 +1,16 @@
+name: Teste Pipeline
+on: [pull_request]
+jobs:
+  check-terceira-linha:
+    runs-on: ubuntu-latest
+    steps:
+     - name: Checkout codigo
+       uses: actions/checkout@v3
+     - name: Verifica se a terceira linha é igual a "Terceira linha"
+       run: |
+         if grep -q "Terceira linha" index.html; then
+           echo "A terceira linha é igual a 'Terceira linha'."
+         else
+           echo "A terceira linha não é igual a 'Terceira linha'."
+           exit 1
+         fi

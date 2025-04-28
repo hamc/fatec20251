@@ -1,0 +1,120 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "CloudFormation Template para criar uma instância EC2 Ubuntu com Apache instalado e acesso a S3"
+
+Resources:
+  # S3 Bucket
+  S3Bucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      AccessControl: Private
+      BucketName: !Sub "ec2-web-bucket-${AWS::AccountId}"
+      Tags:
+        - Key: "Name"
+          Value: "WebServerContentBucket"
+
+  # IAM Role for EC2 to access S3
+  EC2Role:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: "S3ReadWriteHelloFile"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "s3:GetObject"
+                  - "s3:ListBucket"
+                Resource:
+                  - !Sub "arn:aws:s3:::${S3Bucket}"
+                  - !Sub "arn:aws:s3:::${S3Bucket}/*"
+              - Effect: "Allow"
+                Action:
+                  - "s3:PutObject"
+                Resource:
+                  - !Sub "arn:aws:s3:::${S3Bucket}/hello.txt"
+      Tags:
+        - Key: "Name"
+          Value: "EC2-S3-AccessRole"
+
+  # Instance Profile to attach the IAM role to EC2
+  EC2InstanceProfile:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      Roles:
+        - !Ref EC2Role
+
+  # EC2 Instance with S3 access
+  EC2Instance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      InstanceType: "t2.micro"
+      KeyName: "fatec-5sem"
+      ImageId: "ami-0fc5d935ebf8bc3bc" # AMI Ubuntu mais recente na região
+      IamInstanceProfile: !Ref EC2InstanceProfile
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          SubnetId: "subnet-088043a30f2198697"
+          GroupSet:
+            - !Ref InstanceSecurityGroup
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          sudo apt update -y
+          sudo apt install apache2 awscli -y
+          sudo systemctl start apache2
+          sudo systemctl enable apache2
+          sudo ufw disable
+          
+          # Create a sample index file
+          echo "<html><body><h1>EC2 Web Server with S3 Integration</h1><p>This instance has access to S3 bucket: ${S3Bucket}</p></body></html>" > /var/www/html/index.html
+          
+          # Get bucket name from CloudFormation stack
+          BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name ${AWS::StackName} --query "Stacks[0].Outputs[?OutputKey=='S3BucketName'].OutputValue" --output text)
+          
+          # Create a test file and upload to S3
+          echo "Hello from EC2!" > /tmp/hello.txt
+          aws s3 cp /tmp/hello.txt s3://$BUCKET_NAME/hello.txt
+      Tags:
+        - Key: "Name"
+          Value: "Ubuntu-WebServer-With-S3"
+
+  InstanceSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "Habilita acesso HTTP, HTTPS e SSH"
+      VpcId: "vpc-00db397b"
+      SecurityGroupIngress:
+        - IpProtocol: "tcp"
+          FromPort: 22
+          ToPort: 22
+          CidrIp: "0.0.0.0/0"
+        - IpProtocol: "tcp"
+          FromPort: 80
+          ToPort: 80
+          CidrIp: "0.0.0.0/0"
+        - IpProtocol: "tcp"
+          FromPort: 443
+          ToPort: 443
+          CidrIp: "0.0.0.0/0"
+
+Outputs:
+  InstancePublicIP:
+    Description: "Public IP address of the EC2 instance"
+    Value: !GetAtt EC2Instance.PublicIp
+  
+  S3BucketName:
+    Description: "Name of the S3 bucket"
+    Value: !Ref S3Bucket
+  
+  S3BucketURL:
+    Description: "URL of the S3 bucket"
+    Value: !GetAtt S3Bucket.WebsiteURL

@@ -1,0 +1,114 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Infraestrutura do Microserviço de Pedidos - Grupo 4
+ 
+Resources:
+  # VPC Personalizada
+  MicroserviceVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: MicroserviceVPC
+ 
+  # Internet Gateway
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: MicroserviceIGW
+ 
+  # Attach Gateway to VPC
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref MicroserviceVPC
+      InternetGatewayId: !Ref InternetGateway
+ 
+  # Public Subnet
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MicroserviceVPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: us-east-1a
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: MicroserviceSubnet
+ 
+  # Route Table
+  RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref MicroserviceVPC
+      Tags:
+        - Key: Name
+          Value: MicroserviceRouteTable
+ 
+  # Route to Internet
+  Route:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref RouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+ 
+  # Associate Route Table to Subnet
+  SubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet
+      RouteTableId: !Ref RouteTable
+ 
+  # Security Group
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Permitir acesso SSH"
+      VpcId: !Ref MicroserviceVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: MicroserviceSG
+ 
+  # Instância EC2
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      KeyName: fatec-5sem
+      ImageId: ami-07caf09b362be10b8 # Amazon Linux 2023 na us-east-1
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          SubnetId: !Ref PublicSubnet
+          GroupSet:
+            - !Ref InstanceSecurityGroup
+      Tags:
+        - Key: Name
+          Value: MicroserviceEC2
+ 
+  # Fila SQS para pedidos
+  PedidosQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: pedidos-grupo4.fifo
+      FifoQueue: true
+      ContentBasedDeduplication: true
+ 
+Outputs:
+  EC2PublicIP:
+    Description: "Endereço IP público da instância EC2"
+    Value: !GetAtt EC2Instance.PublicIp
+ 
+  SQSQueueURL:
+    Description: "URL da fila de pedidos"
+    Value: !Ref PedidosQueue

@@ -1,0 +1,22 @@
+name: Verificar Arquivo na Pasta Alunos
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verificar-arquivo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Verificar existência do arquivo
+        run: |
+          if [ -f "alunos/bruno-morelli.txt" ]; then
+            echo "✅ Arquivo encontrado!"
+          else
+            echo "❌ Arquivo 'alunos/bruno-morelli.txt' não encontrado."
+            exit 1

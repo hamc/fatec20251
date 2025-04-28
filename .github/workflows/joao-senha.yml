@@ -1,6 +1,5 @@
-name: Teste pipeline
+name: Teste pipeline - senha joao
 on: [pull_request]
-
 jobs:
   check-terceira-linha:
     runs-on: ubuntu-latest

@@ -9,10 +9,9 @@ jobs:
 
       - name: verificar terceira linha
         run: |
-          if grep -q "terceira linha" index.html; then 
-            echo "teste passou"
-          else
-            echo "teste falhou"
-            exit 1
-          fi
-          
+              if grep -q "terceira linha" index.html; then 
+                echo "teste passou"
+              else
+                echo "teste falhou"
+                exit 1
+              fi

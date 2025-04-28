@@ -1,0 +1,17 @@
+nome: Teste pipeline
+on: [pull_request]
+jobs:
+  check-terceira-linha:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: verificar terceira linha
+        run: |
+          if grep -q "terceira linha" index.html; then 
+            echo "teste passou"
+          else
+            echo "teste falhou"
+            exit 1
+          fi

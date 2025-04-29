@@ -3,7 +3,6 @@ on:
   push:
   pull_request:
     
-
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -11,18 +10,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install cfn-lint
+      - name: Install required tools
         run: |
-          pip install cfn-lint
+          sudo apt-get update
+          sudo apt-get install -y dos2unix
+          pip install cfn-lint yamllint
 
-      - name: Install yamllint
+      - name: Fix YAML formatting issues
         run: |
-          pip install yamllint
+          # Converte finais de linha para o formato Unix (LF)
+          dos2unix iac/Grupo1.yaml
+          
+          # Remove espaços em branco no final das linhas
+          sed -i 's/[[:space:]]*$//' iac/Grupo1.yaml
+          
+          # Garante que haja uma nova linha no final do arquivo
+          echo "" >> iac/Grupo1.yaml
 
       - name: Validate CloudFormation templates with cfn-lint
         run: |
           echo "Validating with cfn-lint..."
-          cfn-lint $(find iac/ -name "Grupo1.yaml" -o -name "Grupo1.yaml")
+          cfn-lint iac/Grupo1.yaml
 
       - name: Validate YAML syntax with yamllint
         run: |

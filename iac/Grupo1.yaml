@@ -1,7 +1,7 @@
 ---
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
-  CloudFormation Template para criar uma instância EC2 para autenticação 
+  CloudFormation Template para criar uma instância EC2 para autenticação
   e uma tabela DynamoDB para armazenar usuários e sessões.
 
 Parameters:

@@ -1,4 +1,4 @@
-name: Teste Pipeline
+name: Teste Pipeline 2
 on: [pull_request]
 jobs:
   check-terceira-linha:

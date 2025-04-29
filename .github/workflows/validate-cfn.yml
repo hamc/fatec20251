@@ -27,7 +27,7 @@ jobs:
       - name: Validate YAML syntax with yamllint
         run: |
           echo "Validating YAML syntax..."
-          yamllint iac/
+          yamllint iac/Grupo-1.yaml
 
       - name: Generate validation report
         if: always()

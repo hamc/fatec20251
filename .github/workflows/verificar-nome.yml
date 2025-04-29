@@ -1,0 +1,25 @@
+name: Verificar Arquivo do Aluno Joao Senha
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  verificar-arquivo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+      
+      - name: Verificar arquivo na pasta alunos
+        run: |        
+             if [ -f "alunos/joao-senha.md" ]; then
+                echo "✅ Arquivo $NOME_ARQUIVO encontrado na pasta alunos!"
+             else
+                echo "❌ Arquivo $NOME_ARQUIVO não encontrado na pasta alunos!"
+                echo "Por favor, crie o arquivo com seu nome na pasta alunos."
+                exit 1
+             fi

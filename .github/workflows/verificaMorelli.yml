@@ -1,22 +1,22 @@
-name: Verificar Arquivo na Pasta Alunos
-
+name: Verificar arquivo do aluno
 on:
   push:
-    branches: [main]
+    branches: [ "main", "master" ]
   pull_request:
-    branches: [main]
+    branches: [ "main", "master" ]
 
 jobs:
   verificar-arquivo:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout do repositório
+      - name: Checkout do código
         uses: actions/checkout@v4
 
-      - name: Verificar existência do arquivo
+      - name: Verificar terceira linha (Windows compatível)
         run: |
-          if [ -f "alunos/bruno-morelli.txt" ]; then
-            echo "✅ Arquivo encontrado!"
-          else
-            echo "❌ Arquivo 'alunos/bruno-morelli.txt' não encontrado."
+          if (Select-String -Path "index.html" -Pattern "terceira linha") {
+            Write-Output "✅ Terceira linha encontrada!"
+          } else {
+            Write-Output "❌ Terceira linha NÃO encontrada!"
             exit 1
+          }

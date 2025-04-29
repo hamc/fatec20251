@@ -1,4 +1,4 @@
-name: check-lorena
+name: check-lorenas
 on: [pull_request]
 
 jobs:

@@ -1,4 +1,4 @@
-name: check-pedreiro
+name: check-pedreiro1
 on: [pull_request]
 
 jobs:

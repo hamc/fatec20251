@@ -1,0 +1,21 @@
+name: check-lorena
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Check for file existence
+        id: check_file
+        run: |
+          if [ -e "alunos/lorena.md" ]; then
+            echo "File exists"
+            exit 0
+          else
+            echo "Error: File 'lorena.md' not found in /alunos/ directory"
+            exit 1
+          fi
+        

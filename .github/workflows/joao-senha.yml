@@ -1,17 +1,16 @@
-name: Teste pipeline - senha joao
+name: Joao Senha - Verificar Terceira Linha
 on: [pull_request]
 jobs:
   check-terceira-linha:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout do Código
         uses: actions/checkout@v3
-
       - name: Verificar terceira linha
         run: |
-             if grep -q "terceira linha" index.html; then
-             echo "teste passou"
-             else
-              echo "teste falhou"
-              exit 1
-             fi
+              if grep -q "terceira linha" index.html; then
+                echo "Teste passou"
+              else
+                echo "Teste falhou"
+                exit 1
+              fi

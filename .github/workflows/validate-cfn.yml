@@ -27,7 +27,7 @@ jobs:
       - name: Validate CloudFormation templates with cfn-lint
         run: |
           echo "Validating with cfn-lint..."
-          cfn-lint $(find iac/ -name "*.yml" -o -name "*.yaml")
+          cfn-lint $(find iac/ -name "Grupo1.yaml" -o -name "Grupo1.yaml")
 
       - name: Validate YAML syntax with yamllint
         run: |

@@ -1,0 +1,40 @@
+name: Validate CloudFormation Template
+
+on:
+  push:
+    paths:
+      - 'iac/**.yml'
+      - 'iac/**.yaml'
+  pull_request:
+    paths:
+      - 'iac/**.yml'
+      - 'iac/**.yaml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install cfn-lint
+        run: |
+          pip install cfn-lint
+
+      - name: Install yamllint
+        run: |
+          pip install yamllint
+
+      - name: Validate CloudFormation templates with cfn-lint
+        run: |
+          echo "Validating with cfn-lint..."
+          cfn-lint iac/*.yml iac/*.yaml
+
+      - name: Validate YAML syntax with yamllint
+        run: |
+          echo "Validating YAML syntax..."
+          yamllint iac/
+
+      - name: Generate validation report
+        if: always()
+        run: echo "Validation completed!"

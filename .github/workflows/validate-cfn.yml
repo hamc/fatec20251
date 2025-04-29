@@ -1,13 +1,8 @@
 name: Validate CloudFormation Template
 on:
   push:
-    paths:
-      - 'iac/**.yml'
-      - 'iac/**.yaml'
   pull_request:
-    paths:
-      - 'iac/**.yml'
-      - 'iac/**.yaml'
+    
 
 jobs:
   validate:

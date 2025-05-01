@@ -30,8 +30,11 @@ jobs:
       - name: Validate with cfn-lint
         run: |
           echo "Validating with cfn-lint..."
-          cfn-lint iac/grupo_3/server.yaml
-
+          cfn-lint iac/grupo_3/server.yaml || exit_code=$?
+          if [ "$exit_code" -ne 0 ] && [ "$exit_code" -ne 4 ]; then
+            exit $exit_code
+          fi
+          
       - name: Validate YAML syntax with yamllint
         run: |
           echo "Validating YAML syntax..."

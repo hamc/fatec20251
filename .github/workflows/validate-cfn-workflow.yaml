@@ -29,51 +29,15 @@ jobs:
       - name: Validate YAML syntax
         run: |
           echo "Running YAML syntax validation..."
-          yamllint -d "{extends: relaxed, rules: {line-length: {max: 120}}}" Grupo05.yaml
+          yamllint -d "{extends: relaxed, rules: {line-length: {max: 120}}}" iac/Grupo05.yaml
           echo "YAML syntax validation completed successfully"
 
       - name: Validate CloudFormation template
         run: |
           echo "Running CloudFormation template validation..."
-          cfn-lint Grupo05.yaml
+          cfn-lint iac/Grupo05.yaml
           echo "CloudFormation template validation completed successfully"
 
-      - name: Generate validation report
-        run: |
-          echo "# CloudFormation Template Validation Report" > validation-report.md
-          echo "## Template: Grupo05.yaml" >> validation-report.md
-          echo "### YAML Syntax Check" >> validation-report.md
-          yamllint -d "{extends: relaxed, rules: {line-length: {max: 120}}}" -f parsable Grupo05.yaml > yaml-results.txt || true
-          if [ -s yaml-results.txt ]; then
-            echo "❌ YAML syntax issues found:" >> validation-report.md
-            echo '```' >> validation-report.md
-            cat yaml-results.txt >> validation-report.md
-            echo '```' >> validation-report.md
-          else
-            echo "✅ YAML syntax validation passed" >> validation-report.md
-          fi
-          
-          echo "### CloudFormation Validation" >> validation-report.md
-          cfn-lint -f json Grupo05.yaml > cfn-results.json || true
-          if [ -s cfn-results.json ]; then
-            echo "❌ CloudFormation validation issues found:" >> validation-report.md
-            echo '```json' >> validation-report.md
-            cat cfn-results.json >> validation-report.md
-            echo '```' >> validation-report.md
-          else
-            echo "✅ CloudFormation validation passed" >> validation-report.md
-          fi
-          
-          echo "### Summary" >> validation-report.md
-          YAML_ISSUES=$(wc -l < yaml-results.txt || echo "0")
-          CFN_ISSUES=$(grep -o '"Level":' cfn-results.json | wc -l || echo "0")
-          echo "- YAML issues found: $YAML_ISSUES" >> validation-report.md
-          echo "- CloudFormation issues found: $CFN_ISSUES" >> validation-report.md
-          
-          if [ "$YAML_ISSUES" -eq "0" ] && [ "$CFN_ISSUES" -eq "0" ]; then
-            echo "✅ **Template validation successful!**" >> validation-report.md
-          else
-            echo "❌ **Template has validation issues that need to be fixed.**" >> validation-report.md
-          fi
+      
 
       

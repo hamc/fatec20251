@@ -1,0 +1,40 @@
+name: Validate CloudFormation Template
+
+on:
+  push:
+    paths:
+      - 'iac/grupo_3/server.yml'
+      - 'iac/grupo_3/server.yml'
+  pull_request:
+    paths:
+      - 'iac/grupo_3/server.yml'
+      - 'iac/grupo_3/server.yml'
+
+jobs:
+  validate:
+    name: Validate CFN Templates
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install cfn-lint and yamllint
+        run: |
+          python -m pip install --upgrade pip
+          pip install cfn-lint yamllint
+
+      - name: Validate CloudFormation templates with cfn-lint
+        run: |
+          echo "Running cfn-lint on CloudFormation templates..."
+          find iac/ -name "*.yml" -o -name "*.yaml" | xargs -I {} cfn-lint {}
+
+      - name: Check YAML syntax with yamllint
+        run: |
+          echo "Running yamllint for YAML syntax validation..."
+          yamllint iac/

@@ -107,7 +107,6 @@ Resources:
       MultiAZ: false
       StorageEncrypted: true
       BackupRetentionPeriod: 0
-      PerformanceInsightsEnabled: false
       DBSubnetGroupName: !Ref DBSubnetGroup
       VPCSecurityGroups:
         - !GetAtt RDSSecurityGroup.GroupId

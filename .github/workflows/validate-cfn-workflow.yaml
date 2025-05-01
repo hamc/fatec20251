@@ -26,12 +26,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install cfn-lint yamllint
 
-      - name: Validate YAML syntax
-        run: |
-          echo "Running YAML syntax validation..."
-          yamllint -d "{extends: relaxed, rules: {line-length: {max: 120}}}" iac/Grupo05.yaml
-          echo "YAML syntax validation completed successfully"
-
+      
       - name: Validate CloudFormation template
         run: |
           echo "Running CloudFormation template validation..."

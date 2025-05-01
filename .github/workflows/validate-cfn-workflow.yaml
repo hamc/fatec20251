@@ -3,10 +3,10 @@ name: Validate CloudFormation Template
 on:
   push:
     paths:
-      - 'Grupo05.yaml'
+      - 'iac/Grupo05.yaml'
   pull_request:
     paths:
-      - 'Grupo05.yaml'
+      - 'iac/Grupo05.yaml'
   workflow_dispatch:  # Allow manual triggering
 
 jobs:

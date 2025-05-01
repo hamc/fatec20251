@@ -53,6 +53,7 @@ Resources:
           ToPort: 22
           CidrIp: !Ref SSHLocation
 
+
   RDSSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     DeletionPolicy: Delete

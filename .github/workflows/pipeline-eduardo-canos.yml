@@ -1,0 +1,45 @@
+name: Verificar aluno e index
+
+on:
+  push:
+    branches:
+      - pipeline-eduardo-canos
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-files:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Verificar se existe o arquivo eduardo-canos.md
+        run: |
+          if [ -f "alunos/eduardo-canos.md" ]; then
+            echo "✅ Arquivo alunos/eduardo-canos.md encontrado!"
+          else
+            echo "❌ Arquivo alunos/eduardo-canos.md não encontrado!"
+            exit 1
+          fi
+
+      - name: Verificar se existe o arquivo index.html
+        run: |
+          if [ -f "index.html" ]; then
+            echo "✅ index.html encontrado!"
+          else
+            echo "❌ index.html não encontrado!"
+            exit 1
+          fi
+
+      - name: Verificar se o index.html contém o texto 'terceira linha'
+        run: |
+          if grep -q "terceira linha" index.html; then
+            echo "✅ Texto 'terceira linha' encontrado no index.html!"
+          else
+            echo "❌ Texto 'terceira linha' não encontrado no index.html!"
+            exit 1
+          fi
+#fim

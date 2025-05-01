@@ -3,12 +3,12 @@ name: Validate CloudFormation Template
 on:
   push:
     paths:
-      - 'iac/grupo_3/server.yml'
-      - 'iac/grupo_3/server.yml'
+      - 'iac/grupo_3/server.yaml'
+      - 'iac/grupo_3/server.yaml'
   pull_request:
     paths:
-      - 'iac/grupo_3/server.yml'
-      - 'iac/grupo_3/server.yml'
+      - 'iac/grupo_3/server.yaml'
+      - 'iac/grupo_3/server.yaml'
 
 jobs:
   validate:
@@ -28,7 +28,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install cfn-lint yamllint
-          
+
 
       - name: Validate CloudFormation templates with cfn-lint
         run: |

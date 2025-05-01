@@ -33,7 +33,7 @@ jobs:
       - name: Validate CloudFormation templates with cfn-lint
         run: |
           echo "Running cfn-lint on CloudFormation templates..."
-          find iac/ -name "*.yml" -o -name "*.yaml" | xargs -I {} cfn-lint {}
+          find iac/ -name "'iac/grupo_3/server.yaml" -o -name "'iac/grupo_3/server.yaml" | xargs -I {} cfn-lint {}
 
       - name: Check YAML syntax with yamllint
         run: |

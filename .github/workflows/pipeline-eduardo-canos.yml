@@ -3,7 +3,7 @@ name: Verificar aluno e index
 on:
   push:
     branches:
-      - pipeline-eduardo-canos
+      - test/pipeline-eduardo-canos
   pull_request:
     branches:
       - main

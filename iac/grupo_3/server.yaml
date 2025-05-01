@@ -4,7 +4,8 @@ Description: Configuração de Custo Mínimo EC2 + RDS (us-east-1)
 Parameters:
   LatestAmazonLinuxAMI:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
-    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-arm64
+    Default: >
+      /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-arm64
 
   KeyName:
     Description: Nome da chave SSH existente
@@ -38,7 +39,9 @@ Parameters:
 
   PrivateSubnetIds:
     Type: List<AWS::EC2::Subnet::Id>
-    Description: Lista de subnets privadas para o RDS (mínimo 2 em AZs diferentes)
+    Description: >
+      Lista de subnets privadas para o RDS
+      (mínimo 2 em AZs diferentes)
 
 Resources:
   EC2SecurityGroup:
@@ -52,7 +55,6 @@ Resources:
           FromPort: 22
           ToPort: 22
           CidrIp: !Ref SSHLocation
-
 
   RDSSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -108,5 +110,6 @@ Resources:
       StorageEncrypted: true
       BackupRetentionPeriod: 0
       DBSubnetGroupName: !Ref DBSubnetGroup
+      
       VPCSecurityGroups:
         - !GetAtt RDSSecurityGroup.GroupId

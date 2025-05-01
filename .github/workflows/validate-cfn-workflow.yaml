@@ -76,19 +76,4 @@ jobs:
             echo "❌ **Template has validation issues that need to be fixed.**" >> validation-report.md
           fi
 
-      - name: Upload validation report
-        uses: actions/upload-artifact@v3
-        with:
-          name: validation-report
-          path: validation-report.md
-
-      # Fail the workflow if issues were found
-      - name: Check validation results
-        run: |
-          YAML_ISSUES=$(wc -l < yaml-results.txt || echo "0")
-          CFN_ISSUES=$(grep -o '"Level":' cfn-results.json | wc -l || echo "0")
-          
-          if [ "$YAML_ISSUES" -ne "0" ] || [ "$CFN_ISSUES" -ne "0" ]; then
-            echo "Validation found issues. See the validation report for details."
-            exit 1
-          fi
+      

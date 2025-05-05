@@ -2,7 +2,7 @@ name: Node.js CI Build
 
 on:
   pull_request:
-    branches: [ PipelineBuildsGrupo3 ]
+    branches: [ PipelineBuildsGrupo3, master ]
 
 jobs:
   build:

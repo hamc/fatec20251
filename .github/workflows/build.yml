@@ -1,0 +1,29 @@
+name: Build and Test Node.js App
+
+on:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔄 Checkout do repositório
+        uses: actions/checkout@v3
+
+      - name: 🟢 Configurar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: 📦 Instalar dependências
+        run: npm install
+        working-directory: ./test-app
+
+      - name: 🧪 Rodar testes
+        run: npm test
+        working-directory: ./test-app
+
+      - name: ✅ Sucesso
+        run: echo "🎉 Tudo certo! Build e testes concluídos com sucesso."
+#fim

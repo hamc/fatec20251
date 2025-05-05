@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "CloudFormation Template para criar uma instância EC2 Ubuntu com Apache instalado e SNS para notificações."
-
+#é mussyr fuiiiiiii...
 Resources:
   EC2Instance:
     Type: "AWS::EC2::Instance"

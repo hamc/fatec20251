@@ -1,0 +1,31 @@
+name: Node.js CI Build
+
+on:
+  pull_request:
+    branches: [ PipelineBuildsGrupo3, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16
+        cache: 'npm'
+        cache-dependency-path: './test-app/package.json'
+
+    - name: Install dependencies
+      run: npm install
+      working-directory: ./test-app
+
+    - name: Run tests
+      run: npm test
+      working-directory: ./test-app
+
+    - name: Build success message
+      run: echo "✅ Build e testes concluídos com sucesso!"

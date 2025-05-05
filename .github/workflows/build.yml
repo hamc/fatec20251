@@ -1,0 +1,34 @@
+name: Build e Testes
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./test-app
+        
+    steps:
+    - name: Checkout do código
+      uses: actions/checkout@v3
+      
+    - name: Configurar Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+        cache: 'npm'
+        cache-dependency-path: './test-app/package-lock.json'
+        
+    - name: Instalar dependências
+      run: npm install
+      
+    - name: Executar testes
+      run: npm test
+      
+    - name: Mensagem de sucesso
+      if: success()
+      run: echo "✅ Build e testes concluídos com sucesso!"

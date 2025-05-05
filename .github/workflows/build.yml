@@ -1,0 +1,23 @@
+name: Build and Test
+
+on:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Instalar dependências
+        run: npm install
+        working-directory: ./test-app
+
+      - name: Rodar testes
+        run: npm test
+        working-directory: ./test-app
+
+      - name: Mensagem de sucesso
+        run: echo "✅ Build e testes finalizados com sucesso!"

@@ -17,10 +17,12 @@ jobs:
           node-version: '18'  
 
       - name: Instalar dependências
-        run: npm install 
+        run: npm install
+        working-directory: ./test-app 
 
       - name: Executar testes
-        run: npm test  
+        run: npm test
+        working-directory: ./test-app 
 
       - name: Mensagem de sucesso
-        run: echo "✅ Testes finalizados com sucesso!" 
+        run: echo "✅ Testes finalizados com sucesso!"

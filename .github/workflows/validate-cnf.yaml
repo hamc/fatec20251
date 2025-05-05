@@ -1,0 +1,38 @@
+name: Validação de Templates CloudFormation
+
+on:
+  push:
+    paths:
+      - 'iac/Grupo04.yaml'
+  pull_request:
+    paths:
+      - 'iac/Grupo04.yaml'
+
+jobs:
+  validate-template:
+    name: Validar sintaxe YAML e CloudFormation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v3
+
+      - name: Instalar yamllint e cfn-lint
+        run: |
+          pip install yamllint cfn-lint
+
+      - name: Verificar sintaxe YAML com yamllint
+        run: |
+          yamllint iac/Grupo04.yaml > yamllint-relatorio.txt || true
+
+      - name: Validar estrutura com cfn-lint
+        run: |
+          cfn-lint iac/Grupo04.yaml > cfn-lint-relatorio.txt || true
+
+      - name: Upload dos relatórios de validação
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-report
+          path: |
+            yamllint-relatorio.txt
+            cfn-lint-relatorio.txt

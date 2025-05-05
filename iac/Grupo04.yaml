@@ -3,7 +3,7 @@ Description: Infraestrutura do Microserviço de Pedidos - Grupo 4
  
 Resources:
   # VPC Personalizada
-  MicroserviceVPC:
+    MicroserviceVPC:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: 10.0.0.0/16

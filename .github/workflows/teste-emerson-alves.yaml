@@ -1,0 +1,17 @@
+name: Teste Pipeline Emerson
+on: [pull_request]
+jobs:
+  check-terceira-linha:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Checkout do código
+        uses: actions/checkout@v3
+      - name: Verificar terceira linha
+        run: |
+             if grep -q "terceira linha" index.html; then
+             echo "Teste passou"
+             else
+              echo "Teste falhou"
+              exit 1
+             fi
+              

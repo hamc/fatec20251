@@ -1,0 +1,26 @@
+name: Verificar Arquivo de Camille Souza
+
+on:
+  push:
+    branches:
+      - verificar-arquivo-camille-souza   
+  pull_request:
+    branches:
+      - main  
+
+jobs:
+  verificar_arquivo:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4   
+
+      - name: Verificar existência do arquivo camillesouza.md
+        run: |
+          if [ -f "./alunos/camillesouza.md" ]; then
+            echo "✅ Arquivo camillesouza.md encontrado na pasta /alunos."
+          else
+            echo "❌ Arquivo camillesouza.md NÃO encontrado na pasta /alunos."
+            exit 1
+          fi

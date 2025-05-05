@@ -2,11 +2,11 @@ name: Verificar Arquivo de Camille Souza
 
 on:
   push:
-    git checkout -b verificar-arquivo-camille-souza
-
+    branches:
+      - verificar-arquivo-camille-souza   
   pull_request:
     branches:
-      - main
+      - main  
 
 jobs:
   verificar_arquivo:
@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout do código
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4   
 
       - name: Verificar existência do arquivo camillesouza.md
         run: |

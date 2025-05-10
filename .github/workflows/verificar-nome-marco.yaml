@@ -1,0 +1,17 @@
+nome: verificar Nome de Marco na pasta alunos
+on: [pull_request]
+jobs:
+  checkout-nome-na-pasta:
+    runs-on: ubunto-latest
+    steps:
+        - name: Verificar Código
+          uses: actions/checkout@v3
+        - name: Verificar nome
+          run: |
+              if grep -r "marco" alunos/; then
+              echo "Test passou"
+              else
+              echo "test falhou"
+              exit 1
+              fi
+

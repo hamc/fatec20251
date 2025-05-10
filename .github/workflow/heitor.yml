@@ -1,0 +1,22 @@
+name: Verificar arquivo do aluno
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  checar-arquivo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar o repositório
+        uses: actions/checkout@v4
+
+      - name: Verificar se o arquivo existe
+        run: |
+          if [ -f "alunos/heitor_fernandes.md" ]; then
+            echo "Arquivo encontrado!"
+          else
+            echo "Erro: O arquivo alunos/heitor_fernandes.md não existe."
+            exit 1
+          fi

@@ -15,11 +15,11 @@ Resources:
  
   # Internet Gateway
   InternetGateway:
-    Type: AWS::EC2::InternetGateway
-    Properties:
-      Tags:
-        - Key: Name
-          Value: MicroserviceIGW
+       Type: AWS::EC2::InternetGateway
+     Properties:
+        Tags:
+             - Key: Name
+            Value: MicroserviceIGW
  
   # Attach Gateway to VPC
   AttachGateway:

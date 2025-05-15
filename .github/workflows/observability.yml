@@ -20,12 +20,14 @@ jobs:
       - name: 📦 Instalando dependências
         run: |
           echo "::group::Instalação de dependências"
+          cd test-app
           npm install
           echo "::endgroup::"
 
       - name: 🧪 Executando testes com medição de tempo
         run: |
           echo "::group::Execução dos testes"
+          cd test-app
           start_time=$(date +%s)
 
           npm test

@@ -1,0 +1,41 @@
+name: Observability 
+
+on:
+  pull_request:
+
+env:
+  NODE_ENV: test
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️ Checkout do código
+        uses: actions/checkout@v3
+
+      - name: 🟡 Ativando modo debug (ACTIONS_STEP_DEBUG)
+        run: echo "ACTIONS_STEP_DEBUG=true" >> $GITHUB_ENV
+
+      - name: 📦 Instalando dependências
+        run: |
+          echo "::group::Instalação de dependências"
+          cd test-app
+          npm install
+          echo "::endgroup::"
+      - name: 🧪 Executando testes com medição de tempo
+        run: |
+          echo "::group::Execução dos testes"
+          cd test-app
+          start_time=$(date +%s)
+          npm test
+          end_time=$(date +%s)
+          duration=$((end_time - start_time))
+          echo "::endgroup::"
+          echo "🕒 Tempo de execução dos testes: ${duration} segundos"
+      - name: 📋 Informações finais da execução
+        run: |
+          echo "::group::Informações do ambiente"
+          echo "📌 Branch: ${{ github.ref }}"
+          echo "📅 Horário de execução: $(date -u)"
+          echo "::endgroup::"

@@ -1,53 +1,67 @@
-name: Observability with Logs
+name: Observability Workflow
 
 on:
   pull_request:
-    branches: [ "**" ]
+    branches: [ "**" ]  # Executa em qualquer branch
 
 env:
-  ACTIONS_STEP_DEBUG: true
+  ACTIONS_STEP_DEBUG: true  # Ativa o modo de debug globalmente
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
-      
+      uses: actions/checkout@v4  # Versão mais recente
+
     - name: ::group:: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
-    
-    - name: Print branch info and start time
+        node-version: '20'  # Versão mais atual do Node
+      run: echo "::endgroup::"
+
+    - name: Print initial info
       run: |
-        echo "Branch: ${{ github.ref }}"
+        echo "::group::Initial Information"
+        echo "Repository: ${{ github.repository }}"
+        echo "Branch: ${{ github.head_ref || github.ref_name }}"
+        echo "Triggered by: ${{ github.actor }}"
         echo "Workflow started at: $(date)"
-      ::endgroup::
-    
+        echo "::endgroup::"
+
     - name: ::group:: Install dependencies
-      run: npm install
+      run: |
+        echo "Starting npm install in test-app directory..."
+        npm install
+        echo "::endgroup::"
+      working-directory: ./test-app
       env:
         CI: true
-    
-    - name: Measure test time
+
+    - name: Run tests with timing
       id: test-time
       run: |
-        start_time=$(date +%s)
+        echo "::group::Test Execution"
+        start_time=$(date +%s.%N)  # Captura com precisão de nanosegundos
+        echo "Starting tests at: $(date)"
         npm test
-        end_time=$(date +%s)
-        elapsed=$(( end_time - start_time ))
-        echo "::set-output name=elapsed_seconds::$elapsed"
-        echo "Tests took $elapsed seconds to complete"
-      ::endgroup::
-    
-    - name: Print debug info
+        end_time=$(date +%s.%N)
+        runtime=$(printf "%.2f" $(echo "$end_time - $start_time" | bc))
+        echo "Tests completed at: $(date)"
+        echo "Test duration: $runtime seconds"
+        echo "::set-output name=elapsed_seconds::$runtime"
+        echo "::endgroup::"
+      working-directory: ./test-app
+
+    - name: Display final information
       run: |
-        echo "::debug::This is a debug message - only visible when debug is enabled"
-        echo "Workflow execution details:"
-        echo "Run ID: ${{ github.run_id }}"
-        echo "Run Number: ${{ github.run_number }}"
-        echo "Actor: ${{ github.actor }}"
-        echo "Current time: $(date)"
+        echo "::group::Workflow Summary"
+        echo "Branch: ${{ github.head_ref || github.ref_name }}"
+        echo "Execution finished at: $(date)"
         echo "Test execution time: ${{ steps.test-time.outputs.elapsed_seconds }} seconds"
+        echo "Workflow run ID: ${{ github.run_id }}"
+        echo "Debug mode: ${{ env.ACTIONS_STEP_DEBUG }}"
+        echo "::endgroup::"
+
+        echo "::debug::This is a debug message - only visible when debug is enabled"

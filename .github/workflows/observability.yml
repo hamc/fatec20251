@@ -50,4 +50,7 @@ jobs:
         echo "Run Number: ${{ github.run_number }}"
         echo "Actor: ${{ github.actor }}"
         echo "Current time: $(date)"
+    
+
+    
         echo "Test execution time: ${{ steps.test-time.outputs.elapsed_seconds }} seconds"

@@ -1,0 +1,39 @@
+# Dependências
+/test-app/node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Diretório de ambiente de tempo de execução
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Diretórios de cache
+.npm
+.eslintcache
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de cobertura de testes
+coverage/
+
+# Arquivos de build
+/test-app/build/
+/test-app/dist/
+
+# Outros arquivos que geralmente são ignorados
+*.swp
+*.swo
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace

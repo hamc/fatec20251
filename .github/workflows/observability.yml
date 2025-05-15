@@ -1,0 +1,84 @@
+name: Observability Workflow
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    env:
+      # Debug mode can be enabled by setting this to true in repository settings
+      DEBUG_MODE: ${{ secrets.ACTIONS_STEP_DEBUG == 'true' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup environment
+        run: |
+          echo "::group::Environment Setup"
+          echo "Setting up environment..."
+          echo "Branch name: ${{ github.head_ref }}"
+          echo "Commit SHA: ${{ github.sha }}"
+          echo "Debug mode: ${{ env.DEBUG_MODE }}"
+          if ${{ env.DEBUG_MODE }}; then
+            echo "Debug mode is enabled - showing additional information"
+            echo "Runner OS: ${{ runner.os }}"
+            echo "Runner architecture: ${{ runner.arch }}"
+          fi
+          echo "::endgroup::"
+      
+      - name: Build project
+        run: |
+          echo "::group::Build Process"
+          echo "Building project..."
+          # Add your build commands here
+          echo "Build completed"
+          echo "::endgroup::"
+      
+      - name: Run tests with time measurement
+        run: |
+          echo "::group::Test Execution"
+          echo "Starting tests at $(date)"
+          START_TIME=$(date +%s)
+          
+          # Add your test commands here
+          # For example:
+          # npm test
+          # or
+          # mvn test
+          # or
+          # python -m pytest
+          
+          # Simulate tests for demonstration
+          if ${{ env.DEBUG_MODE }}; then
+            echo "Running tests in debug mode with additional logging..."
+            sleep 2
+          else
+            echo "Running tests in normal mode..."
+            sleep 1
+          fi
+          
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "Tests completed at $(date)"
+          echo "Test execution time: ${DURATION} seconds"
+          echo "::endgroup::"
+          
+          # Store duration for later use
+          echo "TEST_DURATION=${DURATION}" >> $GITHUB_ENV
+      
+      - name: Execution summary
+        run: |
+          echo "::group::Execution Summary"
+          echo "Workflow execution summary:"
+          echo "------------------------"
+          echo "Branch: ${{ github.head_ref || github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Execution time: $(date)"
+          echo "Test duration: ${{ env.TEST_DURATION }} seconds"
+          echo "Workflow triggered by: ${{ github.actor }}"
+          echo "------------------------"
+          echo "::endgroup::"

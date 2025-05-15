@@ -1,0 +1,16 @@
+{
+    "name": "node-app",
+    "version": "1.0.0",
+    "description": "Aplicação simples para testes com GitHub Actions",
+    "main": "index.js",
+    "scripts": {
+      "test": "jest"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "MIT",
+    "devDependencies": {
+      "jest": "^29.0.0"
+    }
+  }
+  

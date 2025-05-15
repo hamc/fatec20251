@@ -1,0 +1,51 @@
+name: Observability Workflow
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      ACTIONS_STEP_DEBUG: true
+
+    steps:
+    - name: Check out the repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: Install dependencies
+      run: |
+        echo "Starting the npm install..."
+        npm install
+
+    - name: Run tests
+      id: tests
+      run: |
+        echo "Starting the npm test..."
+        start_time=$(date +%s)  # Captura o horário de início
+        npm test
+        end_time=$(date +%s)  # Captura o horário de término
+        runtime=$((end_time - start_time))  # Calcula o tempo de execução
+        echo "Test duration: $runtime seconds"
+        echo "Test duration: $runtime seconds" >> $GITHUB_ENV  # Armazena o tempo de execução em uma variável de ambiente
+
+    - name: Group logs for build and test steps
+      run: |
+        echo "::group::Build and Test Logs"
+        echo "Build step completed."
+        echo "Test step completed."
+        echo "::endgroup::"
+
+    - name: Display useful data
+      run: |
+        echo "Branch name: ${{ github.head_ref }}"
+        echo "Execution time: $(date)"
+        echo "Test execution time: ${{ env.runtime }} seconds"

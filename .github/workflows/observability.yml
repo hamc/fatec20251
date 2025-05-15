@@ -1,0 +1,53 @@
+name: Observability with Logs
+
+on:
+  pull_request:
+    branches: [ "**" ]
+
+env:
+  ACTIONS_STEP_DEBUG: true
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: ::group:: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    
+    - name: Print branch info and start time
+      run: |
+        echo "Branch: ${{ github.ref }}"
+        echo "Workflow started at: $(date)"
+      ::endgroup::
+    
+    - name: ::group:: Install dependencies
+      run: npm install
+      env:
+        CI: true
+    
+    - name: Measure test time
+      id: test-time
+      run: |
+        start_time=$(date +%s)
+        npm test
+        end_time=$(date +%s)
+        elapsed=$(( end_time - start_time ))
+        echo "::set-output name=elapsed_seconds::$elapsed"
+        echo "Tests took $elapsed seconds to complete"
+      ::endgroup::
+    
+    - name: Print debug info
+      run: |
+        echo "::debug::This is a debug message - only visible when debug is enabled"
+        echo "Workflow execution details:"
+        echo "Run ID: ${{ github.run_id }}"
+        echo "Run Number: ${{ github.run_number }}"
+        echo "Actor: ${{ github.actor }}"
+        echo "Current time: $(date)"
+        echo "Test execution time: ${{ steps.test-time.outputs.elapsed_seconds }} seconds"

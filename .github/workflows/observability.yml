@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      ACTIONS_STEP_DEBUG: true
+      ACTIONS_STEP_DEBUG: true  # Ativa o modo de debug
 
     steps:
     - name: Check out the repository
@@ -21,13 +21,11 @@ jobs:
       with:
         node-version: '14'
 
-    - name: Navigate to the test-app directory
-      run: cd test-app  # Navega para a pasta correta
-
     - name: Install dependencies
       run: |
         echo "Starting the npm install..."
         npm install
+      working-directory: ./test-app  # Garante que o npm install seja executado na pasta correta
 
     - name: Run tests
       id: tests
@@ -39,6 +37,7 @@ jobs:
         runtime=$((end_time - start_time))  # Calcula o tempo de execução
         echo "Test duration: $runtime seconds"
         echo "Test duration: $runtime seconds" >> $GITHUB_ENV  # Armazena o tempo de execução em uma variável de ambiente
+      working-directory: ./test-app  # Garante que o npm test seja executado na pasta correta
 
     - name: Group logs for build and test steps
       run: |

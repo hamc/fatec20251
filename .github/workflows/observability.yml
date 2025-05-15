@@ -21,6 +21,9 @@ jobs:
       with:
         node-version: '14'
 
+    - name: Navigate to the test-app directory
+      run: cd test-app  # Navega para a pasta correta
+
     - name: Install dependencies
       run: |
         echo "Starting the npm install..."

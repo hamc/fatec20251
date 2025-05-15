@@ -1,0 +1,37 @@
+name: Observability Workflow
+
+on:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    env:
+      ACTIONS_STEP_DEBUG: true  # Ativa debug simulado
+
+    steps:
+      - name: ⬇️ Checkout do código
+        uses: actions/checkout@v3
+
+      - name: 📦 Instalar dependências
+        run: |
+          echo "::group::Instalação de dependências"
+          npm install
+          echo "::endgroup::"
+
+      - name: 🧪 Executar testes e medir tempo
+        run: |
+          echo "::group::Testes Automatizados"
+          START=$(date +%s)
+          npm test
+          END=$(date +%s)
+          RUNTIME=$((END - START))
+          echo "⏱️ Tempo de execução dos testes: $RUNTIME segundos"
+          echo "::endgroup::"
+
+      - name: ℹ️ Informações da execução
+        run: |
+          echo "🕓 Execução finalizada em: $(date)"
+          echo "🌿 Branch: ${{ github.head_ref }}"
+          echo "🐛 Debug Mode: $ACTIONS_STEP_DEBUG"

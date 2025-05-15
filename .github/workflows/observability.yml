@@ -2,66 +2,52 @@ name: Observability Workflow
 
 on:
   pull_request:
-    branches: [ "**" ]  # Executa em qualquer branch
-
-env:
-  ACTIONS_STEP_DEBUG: true  # Ativa o modo de debug globalmente
+    branches:
+      - master
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
 
+    env:
+      ACTIONS_STEP_DEBUG: true  # Ativa o modo de debug
+
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4  # Versão mais recente
+    - name: Check out the repository
+      uses: actions/checkout@v2
 
-    - name: ::group:: Setup Node.js
-      uses: actions/setup-node@v4
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
       with:
-        node-version: '20'  # Versão mais atual do Node
-      run: echo "::endgroup::"
+        node-version: '14'
 
-    - name: Print initial info
+    - name: Install dependencies
       run: |
-        echo "::group::Initial Information"
-        echo "Repository: ${{ github.repository }}"
-        echo "Branch: ${{ github.head_ref || github.ref_name }}"
-        echo "Triggered by: ${{ github.actor }}"
-        echo "Workflow started at: $(date)"
-        echo "::endgroup::"
-
-    - name: ::group:: Install dependencies
-      run: |
-        echo "Starting npm install in test-app directory..."
+        echo "Starting the npm install..."
         npm install
-        echo "::endgroup::"
-      working-directory: ./test-app
-      env:
-        CI: true
+      working-directory: ./test-app  # Garante que o npm install seja executado na pasta correta
 
-    - name: Run tests with timing
-      id: test-time
+    - name: Run tests
+      id: tests
       run: |
-        echo "::group::Test Execution"
-        start_time=$(date +%s.%N)  # Captura com precisão de nanosegundos
-        echo "Starting tests at: $(date)"
+        echo "Starting the npm test..."
+        start_time=$(date +%s)  # Captura o horário de início
         npm test
-        end_time=$(date +%s.%N)
-        runtime=$(printf "%.2f" $(echo "$end_time - $start_time" | bc))
-        echo "Tests completed at: $(date)"
+        end_time=$(date +%s)  # Captura o horário de término
+        runtime=$((end_time - start_time))  # Calcula o tempo de execução
         echo "Test duration: $runtime seconds"
-        echo "::set-output name=elapsed_seconds::$runtime"
-        echo "::endgroup::"
-      working-directory: ./test-app
+        echo "TEST_DURATION=$runtime" >> $GITHUB_ENV  # Armazena o tempo de execução de forma correta em uma variável de ambiente
+      working-directory: ./test-app  # Garante que o npm test seja executado na pasta correta
 
-    - name: Display final information
+    - name: Group logs for build and test steps
       run: |
-        echo "::group::Workflow Summary"
-        echo "Branch: ${{ github.head_ref || github.ref_name }}"
-        echo "Execution finished at: $(date)"
-        echo "Test execution time: ${{ steps.test-time.outputs.elapsed_seconds }} seconds"
-        echo "Workflow run ID: ${{ github.run_id }}"
-        echo "Debug mode: ${{ env.ACTIONS_STEP_DEBUG }}"
+        echo "::group::Build and Test Logs"
+        echo "Build step completed."
+        echo "Test step completed."
         echo "::endgroup::"
 
-        echo "::debug::This is a debug message - only visible when debug is enabled"
+    - name: Display useful data
+      run: |
+        echo "Branch name: ${{ github.head_ref }}"
+        echo "Execution time: $(date)"
+        echo "Test execution time: ${{ env.TEST_DURATION }} seconds"  # Acessa a variável de ambiente corretamente

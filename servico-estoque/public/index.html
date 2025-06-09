@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>📦 Estoque.io</title>
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;600&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500&display=swap" rel="stylesheet">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'SF Pro Display', sans-serif;
+      background: #f5f5f7;
+      color: #1d1d1f;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    header {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.2rem;
+      color: #1d1d1f;
+      margin-bottom: 2rem;
+      letter-spacing: -0.5px;
+    }
+    .tabs {
+      display: flex;
+      margin-bottom: 1rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .tabs button {
+      padding: 0.5rem 1rem;
+      border: none;
+      background: #dcdcdc;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+      transition: background 0.2s ease-in-out;
+    }
+    .tabs button.active {
+      background: #a3a3a3;
+      color: white;
+    }
+    .tabs button:hover:not(.active) {
+      background: #cfcfcf;
+    }
+    .container {
+      background: white;
+      padding: 2rem 2.5rem;
+      border-radius: 20px;
+      box-shadow: 0 15px 25px rgba(0,0,0,0.06);
+      text-align: center;
+      width: 100%;
+      max-width: 420px;
+    }
+    h1 {
+      font-size: 1.1rem;
+      margin-bottom: 1.2rem;
+      font-weight: 500;
+      color: #3a3a3c;
+    }
+    input {
+      padding: 0.7rem;
+      width: 100%;
+      border: 1px solid #d1d1d6;
+      border-radius: 12px;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      background: #fefefe;
+      font-family: inherit;
+    }
+    input[readonly] {
+      background: #e9e9e9;
+      cursor: not-allowed;
+    }
+    button.submit {
+      padding: 0.7rem 1.2rem;
+      background: #dcdcdc;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: background 0.2s ease-in-out;
+      font-family: inherit;
+      width: 100%;
+    }
+    button.submit:hover {
+      background: #bcbcbc;
+    }
+    #result,
+    #cadastroResult,
+    #produtoEncontrado,
+    #editarResult,
+    #listarResult {
+      margin-top: 1.5rem;
+      font-weight: bold;
+      font-size: 1.05rem;
+      text-align: center;
+    }
+    #result p.name,
+    #produtoEncontrado p.name,
+    #editarResult p.name,
+    #listarResult p.name {
+      color: #7b7f83;
+      font-weight: 600;
+      font-size: 1.32rem;
+      margin: 0.3rem 0;
+    }
+    #result p.quantity,
+    #produtoEncontrado p.quantity,
+    #editarResult p.quantity,
+    #listarResult p.quantity {
+      color: #1E1E1E;
+      font-weight: 400;
+      font-size: 1.05rem;
+      margin: 0.2rem 0;
+    }
+    #result p.status,
+    #produtoEncontrado p.status,
+    #editarResult p.status {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin: 0.2rem 0;
+    }
+    #result p.success,
+    #produtoEncontrado p.success,
+    #editarResult p.success {
+      color: #34c759;
+    }
+    #result p.error,
+    #produtoEncontrado p.error,
+    #editarResult p.error {
+      color: #ff3b30;
+    }
+    #result p.warn,
+    #produtoEncontrado p.warn,
+    #editarResult p.warn {
+      color: #ffcc00;
+    }
+    #listarResult .produto {
+      border-bottom: 1px solid #ddd;
+      padding: 0.8rem 0;
+      text-align: left;
+    }
+    #listarResult .produto:last-child {
+      border-bottom: none;
+    }
+    #listarResult .produto .name {
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+    #listarResult .produto .status {
+      font-weight: 600;
+      margin-top: 0.2rem;
+    }
+    #listarResult .produto .status.esgotado {
+      color: #ff3b30;
+    }
+    #listarResult .produto .status.baixo-estoque {
+      color: #ffcc00;
+    }
+    #listarResult .produto .quantity {
+      margin-top: 0.1rem;
+      font-weight: 500;
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    footer {
+      margin-top: auto;
+      padding-top: 2rem;
+      font-size: 0.72rem;
+      color: #b0b0b0;
+      text-align: center;
+    }
+    #suggestions button.submit {
+      width: 100%;
+      text-align: left;
+      padding-left: 1rem;
+      font-weight: 400;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>📦 Estoque.io</header>
+
+  <div class="tabs">
+    <button id="btnTabVerificar" class="active">Verificar Estoque</button>
+    <button id="btnTabCadastrar">Cadastrar Produto</button>
+    <button id="btnTabProcurar">Procurar Produto</button>
+    <button id="btnTabEditar">Editar Produto</button>
+    <button id="btnTabListar">Listar Produtos</button>
+  </div>
+
+  <div class="container">
+
+    <!-- VERIFICAR ESTOQUE -->
+    <div id="tabVerificar" class="tab-content active">
+      <h1>Verifique o ID do produto 👇</h1>
+      <input type="number" id="productId" placeholder="Digite o ID (ex: 101)" />
+      <button class="submit" id="btnVerificar">🔍 Verificar</button>
+      <div id="result"></div>
+    </div>
+
+    <!-- CADASTRAR PRODUTO -->
+    <div id="tabCadastrar" class="tab-content">
+      <h1>📥 Cadastre um novo produto</h1>
+      <input type="number" id="newId" placeholder="ID do Produto" />
+      <input type="text" id="newName" placeholder="Nome do Produto" />
+      <input type="number" id="newQty" placeholder="Quantidade em Estoque" />
+      <button class="submit" id="btnCadastrar">📦 Cadastrar</button>
+      <div id="cadastroResult"></div>
+    </div>
+
+    <!-- PROCURAR PRODUTO -->
+    <div id="tabProcurar" class="tab-content">
+      <h1>🔎 Procure um produto por nome</h1>
+      <input type="text" id="searchName" placeholder="Digite parte do nome..." autocomplete="off" />
+      <div id="suggestions" style="margin-top: 0.5rem;"></div>
+      <div id="produtoEncontrado" style="margin-top: 1rem;"></div>
+    </div>
+
+    <!-- EDITAR PRODUTO -->
+    <div id="tabEditar" class="tab-content">
+      <h1>✏️ Editar produto pelo nome</h1>
+      <input type="text" id="editSearchName" placeholder="Digite parte do nome..." autocomplete="off" />
+      <div id="editSuggestions" style="margin-top: 0.5rem;"></div>
+
+      <form id="editForm" style="margin-top:1rem; display:none;" onsubmit="return false;">
+        <label for="editId" style="display:block; text-align:left; font-weight:600; margin-bottom:0.3rem;">ID do Produto</label>
+        <input type="number" id="editId" readonly />
+        <label for="editName" style="display:block; text-align:left; font-weight:600; margin: '0.3rem 0';">Nome do Produto</label>
+        <input type="text" id="editName" required />
+        <label for="editQty" style="display:block; text-align:left; font-weight:600; margin: '0.3rem 0';">Quantidade em Estoque</label>
+        <input type="number" id="editQty" required min="0" />
+        <button class="submit" id="btnEditar">💾 Salvar Alterações</button>
+      </form>
+      <div id="editarResult"></div>
+    </div>
+
+    <!-- LISTAR PRODUTOS -->
+    <div id="tabListar" class="tab-content">
+      <h1>📝 Lista completa de produtos</h1>
+      <button class="submit" id="btnListar">Procurar Produtos</button>
+      <div id="listarResult" style="margin-top:1rem; max-height: 320px; overflow-y:auto; text-align:left;"></div>
+    </div>
+
+  </div>
+
+  <footer>Create By: Gabriel Pedreiro, Gabriel Schultz, Otávio, Heitor</footer>
+
+<script>
+  // Banco de dados em memória
+  const produtos = [
+    { id: 101, name: "Teclado Mecânico", quantity: 20 },
+    { id: 102, name: "Mouse Gamer", quantity: 12 },
+    { id: 103, name: "Monitor 24\"", quantity: 0 },
+    { id: 104, name: "Cabo HDMI", quantity: 5 },
+    { id: 105, name: "Webcam Full HD", quantity: 7 }
+  ];
+
+  // Função auxiliar para status estoque
+  function statusEstoque(qtd) {
+    if (qtd === 0) return { text: "ESGOTADO", className: "error" };
+    if (qtd <= 5) return { text: "BAIXO ESTOQUE", className: "warn" };
+    return { text: "EM ESTOQUE", className: "success" };
+  }
+
+  // Mostrar resultado de verificar estoque
+  function mostrarResultado(produto) {
+    const status = statusEstoque(produto.quantity);
+    return `
+      <p class="name">${produto.name}</p>
+      <p class="quantity">Quantidade: ${produto.quantity}</p>
+      <p class="status ${status.className}">${status.text}</p>
+    `;
+  }
+
+  // Verificar produto pelo ID
+  document.getElementById("btnVerificar").addEventListener("click", () => {
+    const id = Number(document.getElementById("productId").value);
+    const div = document.getElementById("result");
+    div.innerHTML = "";
+    if (!id) {
+      div.innerHTML = `<p class="error">Por favor, informe um ID válido.</p>`;
+      return;
+    }
+    const prod = produtos.find(p => p.id === id);
+    if (prod) {
+      div.innerHTML = mostrarResultado(prod);
+    } else {
+      div.innerHTML = `<p class="error">Produto não encontrado.</p>`;
+    }
+  });
+
+  // Cadastrar novo produto
+  document.getElementById("btnCadastrar").addEventListener("click", () => {
+    const id = Number(document.getElementById("newId").value);
+    const name = document.getElementById("newName").value.trim();
+    const qty = Number(document.getElementById("newQty").value);
+    const div = document.getElementById("cadastroResult");
+    div.innerHTML = "";
+
+    if (!id || !name || isNaN(qty) || qty < 0) {
+      div.innerHTML = `<p class="error">Preencha todos os campos corretamente.</p>`;
+      return;
+    }
+    if (produtos.some(p => p.id === id)) {
+      div.innerHTML = `<p class="error">ID já cadastrado.</p>`;
+      return;
+    }
+    produtos.push({ id, name, quantity: qty });
+    div.innerHTML = `<p class="success">Produto cadastrado com sucesso!</p>`;
+
+    // Limpar campos
+    document.getElementById("newId").value = "";
+    document.getElementById("newName").value = "";
+    document.getElementById("newQty").value = "";
+  });
+
+  // Função para filtrar nomes
+  function filtrarProdutosPorNome(substring) {
+    const filtro = substring.trim().toLowerCase();
+    if (!filtro) return [];
+    return produtos.filter(p => p.name.toLowerCase().includes(filtro));
+  }
+
+  // Mostrar sugestões para procurar produto
+  const searchInput = document.getElementById("searchName");
+  const suggestionsDiv = document.getElementById("suggestions");
+  const produtoEncontradoDiv = document.getElementById("produtoEncontrado");
+
+  searchInput.addEventListener("input", () => {
+    const texto = searchInput.value.trim();
+    suggestionsDiv.innerHTML = "";
+    produtoEncontradoDiv.innerHTML = "";
+    if (texto.length < 2) return;
+
+    const resultados = filtrarProdutosPorNome(texto).slice(0,5);
+
+    resultados.forEach(prod => {
+      const btn = document.createElement("button");
+      btn.classList.add("submit");
+      btn.textContent = prod.name;
+      btn.addEventListener("click", () => {
+        searchInput.value = prod.name;
+        suggestionsDiv.innerHTML = "";
+        mostrarProdutoEncontrado(prod);
+      });
+      suggestionsDiv.appendChild(btn);
+    });
+  });
+
+  function mostrarProdutoEncontrado(prod) {
+    const status = statusEstoque(prod.quantity);
+    produtoEncontradoDiv.innerHTML = `
+      <p class="name">${prod.name}</p>
+      <p class="quantity">Quantidade: ${prod.quantity}</p>
+      <p class="status ${status.className}">${status.text}</p>
+    `;
+  }
+
+  // EDITAR PRODUTO
+
+  const editSearchInput = document.getElementById("editSearchName");
+  const editSuggestionsDiv = document.getElementById("editSuggestions");
+  const editForm = document.getElementById("editForm");
+  const editIdInput = document.getElementById("editId");
+  const editNameInput = document.getElementById("editName");
+  const editQtyInput = document.getElementById("editQty");
+  const editarResultDiv = document.getElementById("editarResult");
+
+  let produtoEditando = null;
+
+  editSearchInput.addEventListener("input", () => {
+    const texto = editSearchInput.value.trim();
+    editSuggestionsDiv.innerHTML = "";
+    editarResultDiv.innerHTML = "";
+    editForm.style.display = "none";
+    if (texto.length < 2) return;
+
+    const resultados = filtrarProdutosPorNome(texto).slice(0,5);
+    resultados.forEach(prod => {
+      const btn = document.createElement("button");
+      btn.classList.add("submit");
+      btn.textContent = prod.name;
+      btn.addEventListener("click", () => {
+        produtoEditando = prod;
+        editIdInput.value = prod.id;
+        editNameInput.value = prod.name;
+        editQtyInput.value = prod.quantity;
+        editForm.style.display = "block";
+        editSuggestionsDiv.innerHTML = "";
+      });
+      editSuggestionsDiv.appendChild(btn);
+    });
+  });
+
+  document.getElementById("btnEditar").addEventListener("click", () => {
+    editarResultDiv.innerHTML = "";
+    if (!produtoEditando) {
+      editarResultDiv.innerHTML = `<p class="error">Selecione um produto para editar.</p>`;
+      return;
+    }
+    const novoNome = editNameInput.value.trim();
+    const novaQtd = Number(editQtyInput.value);
+    if (!novoNome || isNaN(novaQtd) || novaQtd < 0) {
+      editarResultDiv.innerHTML = `<p class="error">Preencha os campos corretamente.</p>`;
+      return;
+    }
+    // Atualiza produto no array
+    produtoEditando.name = novoNome;
+    produtoEditando.quantity = novaQtd;
+
+    editarResultDiv.innerHTML = `<p class="success">Produto atualizado com sucesso!</p>`;
+    editForm.style.display = "none";
+    editSearchInput.value = "";
+    produtoEditando = null;
+  });
+
+  // LISTAR PRODUTOS
+  document.getElementById("btnListar").addEventListener("click", () => {
+    const listarDiv = document.getElementById("listarResult");
+    if (produtos.length === 0) {
+      listarDiv.innerHTML = "<p>Nenhum produto cadastrado.</p>";
+      return;
+    }
+    let html = "";
+    produtos.forEach(prod => {
+      let statusText = "";
+      let statusClass = "";
+      if (prod.quantity === 0) {
+        statusText = "ESGOTADO";
+        statusClass = "esgotado";
+      } else if (prod.quantity <= 5) {
+        statusText = "BAIXO ESTOQUE";
+        statusClass = "baixo-estoque";
+      } else {
+        statusText = "EM ESTOQUE";
+        statusClass = "";
+      }
+      html += `
+        <div class="produto">
+          <p class="name">${prod.name} (ID: ${prod.id})</p>
+          <p class="quantity">Quantidade: ${prod.quantity}</p>
+          <p class="status ${statusClass}">${statusText}</p>
+        </div>
+      `;
+    });
+    listarDiv.innerHTML = html;
+  });
+
+  // Lógica das abas
+  const tabs = {
+    btnTabVerificar: "tabVerificar",
+    btnTabCadastrar: "tabCadastrar",
+    btnTabProcurar: "tabProcurar",
+    btnTabEditar: "tabEditar",
+    btnTabListar: "tabListar"
+  };
+
+  Object.keys(tabs).forEach(btnId => {
+    document.getElementById(btnId).addEventListener("click", () => {
+      // Remove active de todos
+      Object.keys(tabs).forEach(bid => {
+        document.getElementById(bid).classList.remove("active");
+        document.getElementById(tabs[bid]).classList.remove("active");
+      });
+      // Ativa atual
+      document.getElementById(btnId).classList.add("active");
+      document.getElementById(tabs[btnId]).classList.add("active");
+    });
+  });
+
+</script>
+</body>
+</html>

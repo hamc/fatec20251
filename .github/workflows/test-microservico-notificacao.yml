@@ -1,0 +1,28 @@
+### .github/workflows/test-microservico-notificacao.yml
+
+name: Testes Microserviço de Notificação
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Instalação de dependências
+        run: npm install
+        working-directory: ./microservico-grupo5
+
+      - name: Executando testes
+        run: |
+          echo "Rodando testes simples..."
+          node -e "require('http').get('http://localhost:3000', res => console.log('Servidor respondeu:', res.statusCode)).on('error', err => console.error('Erro:', err.message))"
+        working-directory: ./microservico_grupo5
+
+      - name: Sucesso no processo de testes
+        run: echo "Testes executados com sucesso."

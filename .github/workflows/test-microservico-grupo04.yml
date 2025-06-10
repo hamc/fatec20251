@@ -25,4 +25,3 @@ jobs:
         run: |
           cd microservicos-grupo04
           pytest -v
-#fim

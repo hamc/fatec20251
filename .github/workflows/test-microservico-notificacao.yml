@@ -22,7 +22,7 @@ jobs:
         run: |
           echo "Rodando testes simples..."
           node -e "require('http').get('http://localhost:3000', res => console.log('Servidor respondeu:', res.statusCode)).on('error', err => console.error('Erro:', err.message))"
-        working-directory: ./microservico_grupo5
+        working-directory: ./microservico-grupo5
 
       - name: Sucesso no processo de testes
         run: echo "Testes executados com sucesso."

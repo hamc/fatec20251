@@ -1,9 +1,9 @@
-name: Build Microserviço Grupo04
+name: Testes Microserviço Grupo04
 
 on: [push, pull_request]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,12 +17,12 @@ jobs:
 
       - name: Instalar dependências
         run: |
+          cd microservicos-grupo04
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Início do build
-        run: echo "Iniciando o processo de build..."
-
-      - name: Fim do build
-        run: echo "Build finalizado com sucesso."
+      - name: Executar testes com Pytest
+        run: |
+          cd microservicos-grupo04
+          pytest -v
 #fim

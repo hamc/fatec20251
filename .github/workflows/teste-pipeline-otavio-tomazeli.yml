@@ -1,0 +1,29 @@
+name: Verificar aluno
+
+on:
+  push:
+    branches:
+      - teste-pipeline-otavio-tomazeli
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  check-files:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Verificar se existe o arquivo otavio-tomazeli.md
+        run: |
+          if [ -f "alunos/otavio-tomazeli.md" ]; then
+            echo "✅ Arquivo alunos/otavio-tomazeli.md encontrado!"
+          else
+            echo "❌ Arquivo alunos/otavio-tomazeli.md não encontrado!"
+            exit 1
+          fi
+
+#fim

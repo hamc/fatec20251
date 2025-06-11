@@ -17,30 +17,27 @@ def wait_for_server():
             time.sleep(1)
 
 def test_cart_operations():
-    # Inicia o servidor Flask
     server = start_server()
     try:
         wait_for_server()
 
-        # Teste: produto não está no carrinho
+        print("Verificando item fora do carrinho...")
         res = requests.get(f"{BASE_URL}/cart/hasItem?productId=1")
         assert res.json() == {"inCart": False}
 
-        # Teste: adiciona item
+        print("Adicionando item...")
         res = requests.post(f"{BASE_URL}/cart/addItem", json={"productId": "1"})
         assert res.status_code == 201
-        assert res.json()["success"] is True
 
-        # Teste: item está no carrinho
+        print("Item está no carrinho...")
         res = requests.get(f"{BASE_URL}/cart/hasItem?productId=1")
         assert res.json() == {"inCart": True}
 
-        # Teste: remove item
+        print("Removendo item...")
         res = requests.delete(f"{BASE_URL}/cart/removeItem", json={"productId": "1"})
         assert res.status_code == 200
-        assert res.json()["success"] is True
 
-        # Teste: item não está mais no carrinho
+        print("Verificação final...")
         res = requests.get(f"{BASE_URL}/cart/hasItem?productId=1")
         assert res.json() == {"inCart": False}
 

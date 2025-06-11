@@ -25,5 +25,5 @@ jobs:
         working-directory: microservicos-grupo4
         run: |
           echo "Iniciando os testes..."
-          pytest test_app.py
+          pytest -v -s test_app.py
           echo "Testes finalizados com sucesso!"

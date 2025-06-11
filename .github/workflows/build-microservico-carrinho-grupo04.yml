@@ -1,0 +1,27 @@
+name: Build Carrinho
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout do código
+      uses: actions/checkout@v3
+
+    - name: Configura Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Instala dependências
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Início do processo de build
+      run: echo "Iniciando o build..."
+
+    - name: Fim do processo de build
+      run: echo "Build finalizado com sucesso!"

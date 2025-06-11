@@ -1,0 +1,27 @@
+name: Testes Carrinho
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout do código
+      uses: actions/checkout@v3
+
+    - name: Configura Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Instala dependências
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Executa os testes
+      run: |
+        echo "Iniciando os testes..."
+        pytest test_app.py
+        echo "Testes finalizados com sucesso!"

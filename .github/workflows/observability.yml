@@ -1,0 +1,45 @@
+name: Observability Workflow
+
+on:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    env:
+      ACTIONS_STEP_DEBUG: true
+
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v3
+
+      - name: Marcar tempo de início da pipeline
+        run: echo "$(date +%s)" > pipeline_start_time.txt
+
+      - name: Instalação de dependências
+        working-directory: ./test-app
+        run: |
+          echo "::group::Instalação de dependências"
+          npm install
+          echo "::endgroup::"
+
+      - name: Execução dos testes com medição de tempo
+        working-directory: ./test-app
+        run: |
+          echo "::group::Execução dos Testes"
+          START_TIME=$(date +%s)
+          npm test
+          END_TIME=$(date +%s)
+          EXEC_TIME=$((END_TIME - START_TIME))
+          echo "Tempo de execução dos testes: $EXEC_TIME segundos"
+          echo "::endgroup::"
+
+      - name: Informações da execução
+        run: |
+          PIPELINE_START=$(cat pipeline_start_time.txt)
+          PIPELINE_END=$(date +%s)
+          PIPELINE_DURATION=$((PIPELINE_END - PIPELINE_START))
+          echo "Data e hora da execução: $(date)"
+          echo "Nome da branch: ${{ github.ref }}"
+          echo "Tempo total da pipeline: $PIPELINE_DURATION segundos"
+#fim

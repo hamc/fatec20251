@@ -1,0 +1,25 @@
+### .github/workflows/build-microservico-notificacao.yml
+
+name: Build Microserviço de Notificação
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Início do processo de build
+        run: echo "Iniciando o processo de build do microserviço de notificação..."
+
+      - name: Instalação de dependências
+        run: npm install
+        working-directory: ./microservico-grupo5
+
+      - name: Fim do processo de build
+        run: echo "Build finalizado com sucesso."

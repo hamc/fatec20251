@@ -1,5 +1,8 @@
+---
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "CloudFormation Template para criar uma instância EC2 para autenticação e uma tabela DynamoDB para armazenar usuários e sessões."
+Description: >-
+  CloudFormation Template para criar uma instância EC2 para autenticação
+  e uma tabela DynamoDB para armazenar usuários e sessões.
 
 Parameters:
   DynamoDBTableName:
@@ -21,7 +24,7 @@ Resources:
           GroupSet:
             - !Ref InstanceSecurityGroup
       UserData:
-        Fn::Base64: !Sub |
+        Fn::Base64: |
           #!/bin/bash
           echo "AWS_REGION=us-east-1" >> /etc/environment
       Tags:
@@ -50,7 +53,7 @@ Resources:
   DynamoDBTable:
     Type: "AWS::DynamoDB::Table"
     Properties:
-      TableName: DynamoDBTableName
+      TableName: !Ref DynamoDBTableName
       AttributeDefinitions:
         - AttributeName: "UserID"
           AttributeType: "S"

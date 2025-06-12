@@ -1,0 +1,18 @@
+name: Verificar Nome de Emerson na Pasta alunos
+on: [pull_request]
+
+jobs: 
+  checkout-nome-na-pasta:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Verificar código
+        uses: actions/checkout@v3
+      - name: Verificar nome
+        run: |
+             if grep -r "emerson" alunos/; then
+             echo "Teste passou"
+             else
+              echo "Teste falhou"
+              exit 1
+             fi
+        

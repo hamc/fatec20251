@@ -1,0 +1,24 @@
+name: Build Microserviço Catálogo
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 🔄 Checkout do código
+      uses: actions/checkout@v4
+
+    - name: 🟡 Início do processo de build
+      run: echo "Iniciando o processo de build..."
+
+    - name: 🔧 Instalar dependências
+      run: npm install
+
+    - name: ✅ Build concluído com sucesso
+      run: echo "Build finalizado com sucesso!"

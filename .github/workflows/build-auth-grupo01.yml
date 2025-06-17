@@ -1,0 +1,32 @@
+name: Build Microsserviço Auth (Next.js)
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # Ou o ambiente de execução preferido
+
+    steps:
+    - name: Fazer Checkout do código
+      uses: actions/checkout@v4
+
+    - name: Configurar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20' # Especifique sua versão do Node.js (compatível com Next.js)
+        cache: 'npm' # Habilita cache para npm para builds mais rápidos
+        cache-dependency-path: 'auth/package-lock.json' # Define o arquivo de lock para o cache
+
+    - name: Exibir mensagem de início de build
+      run: echo "--- Iniciando o processo de build para o Microsserviço Auth (Next.js) ---"
+
+    - name: Instalar dependências
+      run: npm ci
+      working-directory: auth
+
+    - name: Executar o build do Next.js
+      run: npm run build
+      working-directory: auth
+
+    - name: Exibir mensagem de fim de build
+      run: echo "--- Build do Microsserviço Auth (Next.js) concluído com sucesso ---"

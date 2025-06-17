@@ -1,4 +1,5 @@
-name: Build Microserviço Catálogo
+name: Build Microserviço Carrinho - Grupo 04
+
 
 on:
   push:

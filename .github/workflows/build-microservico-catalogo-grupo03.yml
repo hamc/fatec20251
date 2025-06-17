@@ -9,16 +9,19 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-    - name: 🔄 Checkout do código
-      uses: actions/checkout@v4
+      - name: 🔄 Clonar repositório
+        uses: actions/checkout@v4
 
-    - name: 🟡 Início do processo de build
-      run: echo "Iniciando o processo de build..."
+      - name: 📦 Instalar dependências com npm ci
+        run: npm ci 
 
-    - name: 🔧 Instalar dependências
-      run: npm install
-
-    - name: ✅ Build concluído com sucesso
-      run: echo "Build finalizado com sucesso!"
+      - name: 🏷️ Gerar artifact do build
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-build
+          path: |
+            node_modules
+            *.js
+            *.json
+          retention-days: 1

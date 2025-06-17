@@ -1,38 +1,41 @@
 name: Testes Microserviço Produtos
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_run:
+    workflows: ["🏗️ Build do Microsserviço"]
+    types: [completed]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
-    - name: 🔄 Clonar repositório
-      uses: actions/checkout@v4
+      - name: 📥 Baixar artifact do build
+        uses: actions/download-artifact@v3
+        with:
+          name: app-build
+          path: .
 
-    - name: 🔧 Instalar dependências
-      run: npm install
+      - name: ▶️ Iniciar servidor
+        run: |
+          node app.js &
+          sleep 5  # Tempo maior para garantir inicialização
+          echo "🔄 Servidor pronto em localhost:3000"
 
-    - name: ▶️ Iniciar servidor em background
-      run: |
-        node app.js &
-        sleep 3
+      - name: 🧪 Teste de produto existente (ID 101)
+        run: |
+          RESPONSE=$(curl -s "http://localhost:3000/products/check?productId=101")
+          if ! echo "$RESPONSE" | grep -q '"available":true'; then
+            echo "❌ Falha: produto 101 deveria estar disponível"
+            exit 1
+          fi
 
-    - name: 🧪 Testar rota /products/check com produto existente (id=101)
-      run: |
-        RESPONSE=$(curl -s http://localhost:3000/products/check?productId=101)
-        echo "Resposta da API: $RESPONSE"
-        echo "$RESPONSE" | grep '"available":true' || (echo "❌ Falha no teste: produto deveria estar disponível" && exit 1)
+      - name: 🧪 Teste de produto inexistente (ID 999)
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:3000/products/check?productId=999")
+          if [ "$STATUS" -ne 404 ]; then
+            echo "❌ Falha: status 404 esperado, recebido $STATUS"
+            exit 1
+          fi
 
-    - name: 🧪 Testar rota /products/check com produto inexistente (id=999)
-      run: |
-        STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/products/check?productId=999)
-        echo "Status da API: $STATUS"
-        [ "$STATUS" -eq 404 ] || (echo "❌ Falha no teste: deveria retornar 404" && exit 1)
-
-    - name: ✅ Todos os testes passaram
-      run: echo "✔️ Testes executados com sucesso!"
+      - name: 📊 Relatório de cobertura (Opcional)
+        run: echo "✅ Todos os testes passaram"

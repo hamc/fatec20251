@@ -1,12 +1,6 @@
 name: Build Microsserviço Auth (Next.js)
 
-on:
-  push:
-    branches:
-      - main # Ou sua branch de desenvolvimento principal
-  pull_request:
-    branches:
-      - main # Ou sua branch de desenvolvimento principal
+on: [push, pull_request]
 
 jobs:
   build:

@@ -21,10 +21,12 @@ jobs:
       run: echo "--- Iniciando o processo de build para o Microsserviço Auth (Next.js) ---"
 
     - name: Instalar dependências
-      run: npm ci # 'npm ci' é preferível em CI/CD para instalações limpas
+      run: npm ci
+      working-directory: auth
 
     - name: Executar o build do Next.js
       run: npm run build
+      working-directory: auth
 
     - name: Exibir mensagem de fim de build
       run: echo "--- Build do Microsserviço Auth (Next.js) concluído com sucesso ---"

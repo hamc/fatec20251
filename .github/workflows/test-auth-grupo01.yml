@@ -19,9 +19,11 @@ jobs:
 
     - name: Instalar dependências
       run: npm ci # Instala dependências para que os testes possam rodar
-
+      working-directory: auth
+      
     - name: Executar testes (Next.js)
       run: npm test
+      working-directory: auth
 
     - name: Exibir mensagem de sucesso nos testes
       run: echo "--- Testes do Microsserviço Auth (Next.js) concluídos com sucesso ---"

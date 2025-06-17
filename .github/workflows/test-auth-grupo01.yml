@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # Ou o ambiente de execução preferido
 
     steps:
     - name: Fazer Checkout do código
@@ -13,22 +13,20 @@ jobs:
     - name: Configurar Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
-        cache: 'npm'
-        cache-dependency-path: auth/package-lock.json
+        node-version: '20' # Especifique sua versão do Node.js
+        cache: 'npm' # Habilita cache para npm
+        cache-dependency-path: 'auth/package-lock.json' # Define o arquivo de lock para o cache
 
     - name: Instalar dependências
-      run: npm ci
-      working-directory: auth
+      run: npm ci # Instala dependências para que os testes possam rodar
 
     - name: Executar testes (Next.js)
       run: npm test
-      working-directory: auth
 
     - name: Exibir mensagem de sucesso nos testes
       run: echo "--- Testes do Microsserviço Auth (Next.js) concluídos com sucesso ---"
-      if: success()
+      if: success() # Só executa se os passos anteriores forem bem-sucedidos
 
     - name: Exibir mensagem de falha nos testes
       run: echo "--- Testes do Microsserviço Auth (Next.js) falharam ---"
-      if: failure()
+      if: failure() # Só executa se os passos anteriores falharem

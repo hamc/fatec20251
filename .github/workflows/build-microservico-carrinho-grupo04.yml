@@ -1,4 +1,4 @@
-name: Build Microserviço Carrinho - Grupo 04 #Build Carrinho
+name: Build Microserviço
 
 on: [push, pull_request]
 

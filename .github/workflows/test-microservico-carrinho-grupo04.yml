@@ -1,4 +1,4 @@
-name: Testes Microserviço Carrinho - Grupo 04 #Testes Carrinho
+name: Testes Microserviço
 
 on: [push, pull_request]
 

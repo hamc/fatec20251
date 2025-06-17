@@ -1,4 +1,4 @@
-name: Testes Microserviço Carrinho - Grupo 04
+name: Testes Microserviço
 
 on:
   workflow_run:

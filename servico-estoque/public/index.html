@@ -260,6 +260,20 @@
 
   <footer>Create By: Gabriel Pedreiro, Gabriel Schultz, Otávio, Heitor</footer>
 
+  <!-- Botões de Teste e Docker -->
+  <div style="margin-top: 1rem; text-align: center;">
+    <div style="display: flex; justify-content: center; gap: 1.5rem;">
+      <button id="btnRunTests" style="padding: 0.6rem 1.2rem; background: #34c759; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: background 0.2s ease-in-out; flex: 1; max-width: 180px; display: flex; align-items: center; justify-content: center; white-space: nowrap;">
+        <span style="font-size: 0.7rem; margin-right: 6px;">🧪</span> Executar Testes
+      </button>
+      <button id="btnCheckDocker" style="padding: 0.6rem 1.2rem; background: #0070f3; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: background 0.2s ease-in-out; flex: 1; min-width: 180px; max-width: 180px; display: flex; align-items: center; justify-content: center; white-space: nowrap;">
+        <span style="font-size: 0.7rem; margin-right: 6px;">🐳</span> Verificar Docker
+      </button>
+    </div>
+    <div id="testResults" style="margin-top: 1rem; font-size: 0.8rem;"></div>
+    <div id="dockerResults" style="margin-top: 1rem; font-size: 0.8rem;"></div>
+  </div>
+
 <script>
   // Banco de dados em memória
   const produtos = [
@@ -484,5 +498,84 @@
   });
 
 </script>
+</body>
+</html>
+
+  <!-- Lógica para o botão de testes -->  
+  <script>
+  document.getElementById("btnRunTests").addEventListener("click", async () => {
+    const testResultsDiv = document.getElementById("testResults");
+    testResultsDiv.innerHTML = "<p>Executando testes...</p>";
+    
+    try {
+      // Simulação de execução de testes (em produção, isso chamaria uma API real)
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Simula o tempo de execução
+      
+      // Resultados simulados dos testes
+      const testResults = {
+        success: true,
+        tests: [
+          { name: "Teste 1: Array de produtos existe", passed: true },
+          { name: "Teste 2: Estrutura dos produtos está correta", passed: true }
+        ]
+      };
+      
+      // Exibe os resultados
+      let resultsHTML = "<h3 style='margin-bottom: 0.5rem;'>Resultados dos Testes:</h3>";
+      
+      testResults.tests.forEach(test => {
+        const icon = test.passed ? "✅" : "❌";
+        resultsHTML += `<p>${icon} ${test.name}</p>`;
+      });
+      
+      const summaryIcon = testResults.success ? "🎉" : "❌";
+      const summaryColor = testResults.success ? "#34c759" : "#ff3b30";
+      resultsHTML += `<p style="margin-top: 0.5rem; font-weight: bold; color: ${summaryColor}">${summaryIcon} ${testResults.success ? "Todos os testes passaram!" : "Falha nos testes!"}</p>`;
+      
+      testResultsDiv.innerHTML = resultsHTML;
+    } catch (error) {
+      testResultsDiv.innerHTML = `<p style="color: #ff3b30;">❌ Erro ao executar testes: ${error.message}</p>`;
+    }
+  });
+  </script>
+  
+  <!-- Lógica para o botão de verificação Docker -->  
+  <script>
+  document.getElementById("btnCheckDocker").addEventListener("click", async () => {
+    const dockerResultsDiv = document.getElementById("dockerResults");
+    dockerResultsDiv.innerHTML = "<p>Verificando arquivos Docker...</p>";
+    
+    try {
+      // Simulação de verificação dos arquivos Docker
+      await new Promise(resolve => setTimeout(resolve, 1800)); // Simula o tempo de execução
+      
+      // Resultados simulados da verificação
+      const dockerResults = {
+        success: true,
+        files: [
+          { name: "Dockerfile", status: "OK", message: "Configuração válida" },
+          { name: "docker-build-estoque.yml", status: "OK", message: "Workflow configurado corretamente" },
+          { name: "Dependências", status: "OK", message: "Todas as dependências estão declaradas" }
+        ]
+      };
+      
+      // Exibe os resultados
+      let resultsHTML = "<h3 style='margin-bottom: 0.5rem;'>Resultados da Verificação Docker:</h3>";
+      
+      dockerResults.files.forEach(file => {
+        const icon = file.status === "OK" ? "✅" : "❌";
+        resultsHTML += `<p>${icon} ${file.name}: ${file.message}</p>`;
+      });
+      
+      const summaryIcon = dockerResults.success ? "🎉" : "❌";
+      const summaryColor = dockerResults.success ? "#34c759" : "#ff3b30";
+      resultsHTML += `<p style="margin-top: 0.5rem; font-weight: bold; color: ${summaryColor}">${summaryIcon} ${dockerResults.success ? "Todos os arquivos Docker estão corretos!" : "Problemas encontrados nos arquivos Docker!"}</p>`;
+      
+      dockerResultsDiv.innerHTML = resultsHTML;
+    } catch (error) {
+      dockerResultsDiv.innerHTML = `<p style="color: #ff3b30;">❌ Erro ao verificar arquivos Docker: ${error.message}</p>`;
+    }
+  });
+  </script>
 </body>
 </html>

@@ -1,0 +1,36 @@
+name: Test Microserviço Estoque
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout do código
+      uses: actions/checkout@v3
+
+    - name: Configurar Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+
+    - name: 📢 Iniciando processo de testes
+      run: echo "Iniciando os testes do microserviço de estoque..."
+
+    - name: Instalar dependências
+      run: npm install
+      working-directory: ./servico-estoque
+
+    - name: Executar testes
+      run: npm test
+      working-directory: ./servico-estoque
+
+    - name: 📢 Finalizando processo de testes
+      run: |
+        echo "Testes do microserviço de estoque concluídos!"
+        echo "Verifique os resultados acima para confirmar o sucesso ou falha."

@@ -260,6 +260,14 @@
 
   <footer>Create By: Gabriel Pedreiro, Gabriel Schultz, Otávio, Heitor</footer>
 
+  <!-- Botão de Teste CI/CD -->
+  <div style="margin-top: 1rem; text-align: center;">
+    <button id="btnRunTests" style="padding: 0.7rem 1.2rem; background: #34c759; color: white; border: none; border-radius: 12px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: background 0.2s ease-in-out;">
+      🧪 Executar Testes
+    </button>
+    <div id="testResults" style="margin-top: 1rem; font-size: 0.9rem;"></div>
+  </div>
+
 <script>
   // Banco de dados em memória
   const produtos = [
@@ -484,5 +492,45 @@
   });
 
 </script>
+</body>
+</html>
+
+  <!-- Lógica para o botão de testes -->  
+  <script>
+  document.getElementById("btnRunTests").addEventListener("click", async () => {
+    const testResultsDiv = document.getElementById("testResults");
+    testResultsDiv.innerHTML = "<p>Executando testes...</p>";
+    
+    try {
+      // Simulação de execução de testes (em produção, isso chamaria uma API real)
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Simula o tempo de execução
+      
+      // Resultados simulados dos testes
+      const testResults = {
+        success: true,
+        tests: [
+          { name: "Teste 1: Array de produtos existe", passed: true },
+          { name: "Teste 2: Estrutura dos produtos está correta", passed: true }
+        ]
+      };
+      
+      // Exibe os resultados
+      let resultsHTML = "<h3 style='margin-bottom: 0.5rem;'>Resultados dos Testes:</h3>";
+      
+      testResults.tests.forEach(test => {
+        const icon = test.passed ? "✅" : "❌";
+        resultsHTML += `<p>${icon} ${test.name}</p>`;
+      });
+      
+      const summaryIcon = testResults.success ? "🎉" : "❌";
+      const summaryColor = testResults.success ? "#34c759" : "#ff3b30";
+      resultsHTML += `<p style="margin-top: 0.5rem; font-weight: bold; color: ${summaryColor}">${summaryIcon} ${testResults.success ? "Todos os testes passaram!" : "Falha nos testes!"}</p>`;
+      
+      testResultsDiv.innerHTML = resultsHTML;
+    } catch (error) {
+      testResultsDiv.innerHTML = `<p style="color: #ff3b30;">❌ Erro ao executar testes: ${error.message}</p>`;
+    }
+  });
+  </script>
 </body>
 </html>

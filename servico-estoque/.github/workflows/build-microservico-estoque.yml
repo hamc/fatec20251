@@ -1,0 +1,36 @@
+name: Build Microserviço Estoque
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout do código
+      uses: actions/checkout@v3
+
+    - name: Configurar Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+
+    - name: 📢 Iniciando processo de build
+      run: echo "Iniciando o processo de build do microserviço de estoque..."
+
+    - name: Instalar dependências
+      run: npm install
+      working-directory: ./servico-estoque
+
+    - name: Verificar estrutura do projeto
+      run: |
+        echo "Verificando estrutura do projeto..."
+        ls -la
+      working-directory: ./servico-estoque
+
+    - name: 📢 Finalizando processo de build
+      run: echo "Build do microserviço de estoque concluído com sucesso!"

@@ -1,4 +1,4 @@
-name: Build Carrinho
+name: Build Microserviço
 
 on: [push, pull_request]
 

@@ -1,4 +1,4 @@
-name: Testes Carrinho
+name: Testes Microserviço
 
 on: [push, pull_request]
 

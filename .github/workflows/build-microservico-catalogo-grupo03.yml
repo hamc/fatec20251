@@ -1,0 +1,28 @@
+name: Build Microserviço
+
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔄 Clonar repositório
+        uses: actions/checkout@v4
+
+      - name: 📦 Instalar dependências com npm ci
+        run: npm ci 
+
+      - name: 🏷️ Gerar artifact do build
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-build
+          path: |
+            node_modules
+            *.js
+            *.json
+          retention-days: 1

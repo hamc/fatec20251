@@ -67,7 +67,7 @@ Este projeto foi desenvolvido como parte da atividade prática da disciplina na 
 ### Remover um item do carrinho
 
 - **URL:** `/cart/removeItem`
-- **Método:** `POST`
+- **Método:** `DELETE`
 - **Body (JSON):**  
   ```json
   { "productId": "101" }

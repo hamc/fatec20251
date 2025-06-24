@@ -1,0 +1,9 @@
+- name: Verificar terceira linha (Windows)
+  shell: pwsh  # Força o uso do PowerShell
+  run: |
+    if (Select-String -Path "index.html" -Pattern "terceira linha" -Quiet) {
+      Write-Output "✅ Terceira linha encontrada!"
+    } else {
+      Write-Output "❌ Terceira linha NÃO encontrada!"
+      exit 1
+    }
